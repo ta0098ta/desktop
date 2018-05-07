@@ -1,12 +1,11 @@
 import * as Loki from 'lokijs'
+import { assertNever } from '../fatal-error'
 
-const DbName = 'ghd.db'
-
-enum Collections {
+export enum Collection {
   Repositories = 'repositories',
 }
 
-interface IRepositoryModel {
+export interface IRepositoryModel {
   readonly name: string
   readonly displayName?: string
   readonly path: string
@@ -20,16 +19,36 @@ interface IGHMeta {
   readonly htmlUrl: string
 }
 
-export class Database {
-  private db = new Loki(DbName)
+export class GHDatabase {
+  private readonly db: Loki
 
-  public constructor() {
+  public constructor(path: string) {
+    this.db = new Loki(path)
     this.initCollections()
   }
 
+  public getCollection(collection: Collection) {
+    switch (collection) {
+      case Collection.Repositories:
+        return this.db.getCollection<IRepositoryModel>(Collection.Repositories)
+      default:
+        return assertNever(collection, `unknown collection ${collection}`)
+    }
+  }
+
+  public save() {
+    this.db.save(this.onSaveError)
+  }
+
   private initCollections() {
-    if (this.db.getCollection(Collections.Repositories) == null) {
-      this.db.addCollection<IRepositoryModel>(Collections.Repositories)
+    if (this.db.getCollection(Collection.Repositories) == null) {
+      this.db.addCollection<IRepositoryModel>(Collection.Repositories)
+    }
+  }
+
+  private onSaveError = (error?: any) => {
+    if (error != null) {
+      log.error(error)
     }
   }
 }
