@@ -20,9 +20,9 @@ interface IIssueModel {
 }
 
 interface IUserModel {
-  readonly name: string
+  readonly name: string | null
   readonly login: string
-  readonly email: string
+  readonly email: string | null
   readonly endpoint: string
   readonly avatarUrl: string
 }
