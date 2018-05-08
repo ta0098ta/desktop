@@ -1,6 +1,5 @@
 import * as Loki from 'lokijs'
 import { assertNever } from '../fatal-error'
-import { read } from 'fs'
 import { IPullRequest } from '.'
 
 export enum Collection {
