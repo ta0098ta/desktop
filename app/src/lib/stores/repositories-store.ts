@@ -25,46 +25,6 @@ export class RepositoriesStore extends BaseStore {
     endpoint: string,
     apiRepository: IAPIRepository
   ): Promise<GitHubRepository> {
-    // const repos = this.newDb.getCollection(Collection.Repository)
-
-    // const repo = repos.findOne({
-    //   name: repository.name,
-    //   path: repository.path,
-    // })
-
-    // if (repo === null) {
-    //   return Promise.reject(
-    //     `Could not find repo '${repository.name}' at '${repository.path}`
-    //   )
-    // }
-
-    // if (repo.ghRepository == null) {
-    //   const updatedRepo: IRepositoryModel = {
-    //     name: repo.name,
-    //     displayName: repo.displayName,
-    //     path: repo.path,
-    //     ghRepository: {
-    //       defaultBranch: apiRepository.default_branch,
-    //       isPrivate: apiRepository.private,
-    //       cloneUrl: apiRepository.clone_url,
-    //       htmlUrl: apiRepository.html_url,
-    //       issues: [],
-    //       owner: {
-    //         name: apiRepository.owner.name,
-    //         login: apiRepository.owner.login,
-    //         email: apiRepository.owner.email,
-    //         endpoint: apiRepository.owner.url,
-    //         avatarUrl: apiRepository.owner.avatar_url,
-    //       },
-    //       mentionables: [],
-    //       pullRequests: [],
-    //     },
-    //   }
-
-    //   repos.update(updatedRepo)
-    // } else {
-    // }
-
     return this.db.transaction(
       'rw',
       this.db.repositories,
