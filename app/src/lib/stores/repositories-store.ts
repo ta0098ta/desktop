@@ -9,39 +9,61 @@ import { Repository } from '../../models/repository'
 import { fatalError } from '../fatal-error'
 import { IAPIRepository } from '../api'
 import { BaseStore } from './base-store'
-import { GHDatabase, Collection } from '../databases/database'
-import { RepositorySection } from '../app-state'
 
 /** The store for local repositories. */
 export class RepositoriesStore extends BaseStore {
   private db: RepositoriesDatabase
-  private newDb: GHDatabase
 
-  public constructor(db: RepositoriesDatabase, newDb: GHDatabase) {
+  public constructor(db: RepositoriesDatabase) {
     super()
 
     this.db = db
-    this.newDb = newDb
   }
 
   /** Find the matching GitHub repository or add it if it doesn't exist. */
   public async upsertGitHubRepository(
-    repository: Repository,
     endpoint: string,
     apiRepository: IAPIRepository
   ): Promise<GitHubRepository> {
-    const repos = this.newDb.getCollection(Collection.Repository)
+    // const repos = this.newDb.getCollection(Collection.Repository)
 
-    const repo = repos.findOne({
-      name: repository.name,
-      path: repository.path,
-    })
+    // const repo = repos.findOne({
+    //   name: repository.name,
+    //   path: repository.path,
+    // })
 
-    if (repo === null) {
-      return Promise.reject(
-        `Could not find repo '${repository.name}' at '${repository.path}`
-      )
-    }
+    // if (repo === null) {
+    //   return Promise.reject(
+    //     `Could not find repo '${repository.name}' at '${repository.path}`
+    //   )
+    // }
+
+    // if (repo.ghRepository == null) {
+    //   const updatedRepo: IRepositoryModel = {
+    //     name: repo.name,
+    //     displayName: repo.displayName,
+    //     path: repo.path,
+    //     ghRepository: {
+    //       defaultBranch: apiRepository.default_branch,
+    //       isPrivate: apiRepository.private,
+    //       cloneUrl: apiRepository.clone_url,
+    //       htmlUrl: apiRepository.html_url,
+    //       issues: [],
+    //       owner: {
+    //         name: apiRepository.owner.name,
+    //         login: apiRepository.owner.login,
+    //         email: apiRepository.owner.email,
+    //         endpoint: apiRepository.owner.url,
+    //         avatarUrl: apiRepository.owner.avatar_url,
+    //       },
+    //       mentionables: [],
+    //       pullRequests: [],
+    //     },
+    //   }
+
+    //   repos.update(updatedRepo)
+    // } else {
+    // }
 
     return this.db.transaction(
       'rw',
