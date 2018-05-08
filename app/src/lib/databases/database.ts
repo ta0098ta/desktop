@@ -10,7 +10,7 @@ export interface IRepositoryModel {
   readonly name: string
   readonly displayName?: string
   readonly path: string
-  readonly ghMeta?: IGHRepositoryModel
+  readonly ghRepository?: IGHRepositoryModel
 }
 
 interface IIssueModel {
