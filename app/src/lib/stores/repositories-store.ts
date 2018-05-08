@@ -9,22 +9,40 @@ import { Repository } from '../../models/repository'
 import { fatalError } from '../fatal-error'
 import { IAPIRepository } from '../api'
 import { BaseStore } from './base-store'
+import { GHDatabase, Collection } from '../databases/database'
+import { RepositorySection } from '../app-state'
 
 /** The store for local repositories. */
 export class RepositoriesStore extends BaseStore {
   private db: RepositoriesDatabase
+  private newDb: GHDatabase
 
-  public constructor(db: RepositoriesDatabase) {
+  public constructor(db: RepositoriesDatabase, newDb: GHDatabase) {
     super()
 
     this.db = db
+    this.newDb = newDb
   }
 
   /** Find the matching GitHub repository or add it if it doesn't exist. */
   public async upsertGitHubRepository(
+    repository: Repository,
     endpoint: string,
     apiRepository: IAPIRepository
   ): Promise<GitHubRepository> {
+    const repos = this.newDb.getCollection(Collection.Repository)
+
+    const repo = repos.findOne({
+      name: repository.name,
+      path: repository.path,
+    })
+
+    if (repo === null) {
+      return Promise.reject(
+        `Could not find repo '${repository.name}' at '${repository.path}`
+      )
+    }
+
     return this.db.transaction(
       'rw',
       this.db.repositories,

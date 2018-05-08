@@ -3,7 +3,7 @@ import { assertNever } from '../fatal-error'
 import { IPullRequest } from '.'
 
 export enum Collection {
-  Repositories = 'repositories',
+  Repository = 'repository',
 }
 
 export interface IRepositoryModel {
@@ -49,8 +49,8 @@ export class GHDatabase {
 
   public getCollection(collection: Collection) {
     switch (collection) {
-      case Collection.Repositories:
-        return this.db.getCollection<IRepositoryModel>(Collection.Repositories)
+      case Collection.Repository:
+        return this.db.getCollection<IRepositoryModel>(Collection.Repository)
       default:
         return assertNever(collection, `unknown collection ${collection}`)
     }
@@ -61,8 +61,8 @@ export class GHDatabase {
   }
 
   private initCollections() {
-    if (this.db.getCollection(Collection.Repositories) == null) {
-      this.db.addCollection<IRepositoryModel>(Collection.Repositories)
+    if (this.db.getCollection(Collection.Repository) == null) {
+      this.db.addCollection<IRepositoryModel>(Collection.Repository)
     }
   }
 
