@@ -1,5 +1,7 @@
 import * as Loki from 'lokijs'
 import { assertNever } from '../fatal-error'
+import { read } from 'fs'
+import { IPullRequest } from '.'
 
 export enum Collection {
   Repositories = 'repositories',
@@ -9,14 +11,33 @@ export interface IRepositoryModel {
   readonly name: string
   readonly displayName?: string
   readonly path: string
-  readonly ghMeta?: IGHMeta
+  readonly ghMeta?: IGHRepositoryModel
 }
 
-interface IGHMeta {
+interface IIssueModel {
+  readonly number: number
+  readonly title: string
+  readonly updatedAt: Date
+}
+
+interface IUserModel {
+  readonly name: string
+  readonly login: string
+  readonly email: string
+  readonly endpoint: string
+  readonly avatarUrl: string
+}
+
+interface IGHRepositoryModel {
   readonly defaultBranch: string
   readonly isPrivate: boolean
   readonly cloneUrl: string
   readonly htmlUrl: string
+  readonly issues: ReadonlyArray<IIssueModel>
+  readonly owner: IUserModel
+  readonly forkedFrom?: IGHRepositoryModel
+  readonly mentionables: ReadonlyArray<IUserModel>
+  readonly pullRequests: ReadonlyArray<IPullRequest>
 }
 
 export class GHDatabase {
