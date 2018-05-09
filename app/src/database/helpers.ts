@@ -52,3 +52,7 @@ export function toRepositoryModel(document: IRepository & LokiObj) {
 
   return result
 }
+
+export function getEndpoint(repository: IGHRepository): string {
+  return repository.owner.endpoint
+}
