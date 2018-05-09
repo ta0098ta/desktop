@@ -38,7 +38,7 @@ const NoteURL = 'https://desktop.github.com/'
 /**
  * Information about a repository as returned by the GitHub API.
  */
-export interface IAPIRepository {
+export interface IRepositoryAPIResult {
   readonly clone_url: string
   readonly html_url: string
   readonly name: string
@@ -46,7 +46,7 @@ export interface IAPIRepository {
   readonly private: boolean
   readonly fork: boolean
   readonly default_branch: string
-  readonly parent: IAPIRepository | null
+  readonly parent: IRepositoryAPIResult | null
 }
 
 /**
@@ -150,7 +150,7 @@ interface IAPIPullRequestRef {
    * The repository in which this ref lives. It could be null if the repository
    * has been deleted since the PR was opened.
    */
-  readonly repo: IAPIRepository | null
+  readonly repo: IRepositoryAPIResult | null
 }
 
 /** Information about a pull request as returned by the GitHub API. */
@@ -253,14 +253,14 @@ export class API {
   public async fetchRepository(
     owner: string,
     name: string
-  ): Promise<IAPIRepository | null> {
+  ): Promise<IRepositoryAPIResult | null> {
     try {
       const response = await this.request('GET', `repos/${owner}/${name}`)
       if (response.status === HttpStatusCode.NotFound) {
         log.warn(`fetchRepository: '${owner}/${name}' returned a 404`)
         return null
       }
-      return await parsedResponse<IAPIRepository>(response)
+      return await parsedResponse<IRepositoryAPIResult>(response)
     } catch (e) {
       log.warn(`fetchRepository: an error occurred for '${owner}/${name}'`, e)
       return null
@@ -269,10 +269,10 @@ export class API {
 
   /** Fetch all repos a user has access to. */
   public async fetchRepositories(): Promise<ReadonlyArray<
-    IAPIRepository
+    IRepositoryAPIResult
   > | null> {
     try {
-      return await this.fetchAll<IAPIRepository>('user/repos')
+      return await this.fetchAll<IRepositoryAPIResult>('user/repos')
     } catch (error) {
       log.warn(`fetchRepositories: ${error}`)
       return null
@@ -361,7 +361,7 @@ export class API {
     name: string,
     description: string,
     private_: boolean
-  ): Promise<IAPIRepository> {
+  ): Promise<IRepositoryAPIResult> {
     try {
       const apiPath = org ? `orgs/${org.login}/repos` : 'user/repos'
       const response = await this.request('POST', apiPath, {
@@ -370,7 +370,7 @@ export class API {
         private: private_,
       })
 
-      return await parsedResponse<IAPIRepository>(response)
+      return await parsedResponse<IRepositoryAPIResult>(response)
     } catch (e) {
       if (e instanceof APIError) {
         throw e

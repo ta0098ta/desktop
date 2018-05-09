@@ -7,7 +7,7 @@ import { Owner } from '../../models/owner'
 import { GitHubRepository } from '../../models/github-repository'
 import { Repository } from '../../models/repository'
 import { fatalError } from '../fatal-error'
-import { IAPIRepository } from '../api'
+import { IRepositoryAPIResult } from '../api'
 import { BaseStore } from './base-store'
 import { GHDatabase } from '../databases/database'
 
@@ -26,7 +26,7 @@ export class RepositoriesStore extends BaseStore {
   /** Find the matching GitHub repository or add it if it doesn't exist. */
   public async upsertGitHubRepository(
     endpoint: string,
-    apiRepository: IAPIRepository
+    apiResult: IRepositoryAPIResult
   ): Promise<GitHubRepository> {
     return this.db.transaction(
       'rw',
@@ -36,7 +36,7 @@ export class RepositoriesStore extends BaseStore {
       async () => {
         const gitHubRepository = await this.db.gitHubRepositories
           .where('cloneURL')
-          .equals(apiRepository.clone_url)
+          .equals(apiResult.clone_url)
           .limit(1)
           .first()
 
@@ -258,7 +258,7 @@ export class RepositoriesStore extends BaseStore {
 
   private async putGitHubRepository(
     endpoint: string,
-    gitHubRepository: IAPIRepository
+    gitHubRepository: IRepositoryAPIResult
   ): Promise<GitHubRepository> {
     let parent: GitHubRepository | null = null
     if (gitHubRepository.parent) {
@@ -303,7 +303,7 @@ export class RepositoriesStore extends BaseStore {
   public async updateGitHubRepository(
     repository: Repository,
     endpoint: string,
-    gitHubRepository: IAPIRepository
+    gitHubRepository: IRepositoryAPIResult
   ): Promise<Repository> {
     const repoID = repository.id
     if (!repoID) {

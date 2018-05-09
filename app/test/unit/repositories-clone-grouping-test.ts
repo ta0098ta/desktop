@@ -4,7 +4,7 @@ import {
   groupRepositories,
   YourRepositoriesIdentifier,
 } from '../../src/ui/clone-repository/group-repositories'
-import { IAPIRepository, IAPIUser } from '../../src/lib/api'
+import { IRepositoryAPIResult, IAPIUser } from '../../src/lib/api'
 
 const users = {
   shiftkey: {
@@ -35,7 +35,7 @@ const users = {
 
 describe('clone repository grouping', () => {
   it('groups repositories by organization', () => {
-    const repositories: Array<IAPIRepository> = [
+    const repositories: Array<IRepositoryAPIResult> = [
       {
         clone_url: '',
         html_url: '',
