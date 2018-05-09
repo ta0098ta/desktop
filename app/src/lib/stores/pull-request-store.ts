@@ -19,6 +19,8 @@ import {
   getEndpoint,
   IPullRequest,
   IPullRequestStatus,
+  GHDatabase,
+  Collections,
 } from '../../database'
 
 const Decrement = (n: number) => n - 1
@@ -27,16 +29,19 @@ const Increment = (n: number) => n + 1
 /** The store for GitHub Pull Requests. */
 export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
   private readonly pullRequestDatabase: PullRequestDatabase
+  private readonly ghDb: GHDatabase
   private readonly repositoryStore: RepositoriesStore
   private readonly activeFetchCountPerRepository = new Map<number, number>()
 
   public constructor(
     db: PullRequestDatabase,
+    ghDb: GHDatabase,
     repositoriesStore: RepositoriesStore
   ) {
     super()
 
     this.pullRequestDatabase = db
+    this.ghDb = ghDb
     this.repositoryStore = repositoriesStore
   }
 
@@ -374,24 +379,19 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
     }
 
     const collection = this.ghDb.getCollection(Collections.Repository)
-    const document = collection.findOne({
-      name: repository.name,
-      path: repository.path,
-    })
-
-    return this.pullRequestDatabase.transaction('rw', table, async () => {
-      // we need to delete the stales PRs from the db
-      // so we remove all for a repo to avoid having to
-      // do diffing
-      await table
-        .where('base.repoId')
-        .equals(repoDbId)
-        .delete()
-
-      if (prs.length > 0) {
-        await table.bulkAdd(prs)
-      }
-    })
+    await collection.findAndUpdate(
+      {
+        name: repository.name,
+        path: repository.path,
+      },
+      r => ({
+        ...r,
+        ghRepository: {
+          ...r.ghRepository,
+          pullRequests: prs,
+        },
+      })
+    )
   }
 
   private async cachePullRequestStatuses(

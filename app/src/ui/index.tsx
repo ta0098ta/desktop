@@ -102,6 +102,8 @@ process.once('uncaughtException', (error: Error) => {
   reportUncaughtException(error)
 })
 
+const GHDB = new GHDatabase('/Users/iamwillshepherd/Desktop/gh.db')
+
 const gitHubUserStore = new GitHubUserStore(
   new GitHubUserDatabase('GitHubUserDatabase')
 )
@@ -114,11 +116,12 @@ const signInStore = new SignInStore()
 const accountsStore = new AccountsStore(localStorage, TokenStore)
 const repositoriesStore = new RepositoriesStore(
   new RepositoriesDatabase('Database'),
-  new GHDatabase('/Users/iamwillshepherd/Desktop/gh.db')
+  GHDB
 )
 
 const pullRequestStore = new PullRequestStore(
   new PullRequestDatabase('PullRequestDatabase'),
+  GHDB,
   repositoriesStore
 )
 
