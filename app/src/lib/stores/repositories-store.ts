@@ -9,7 +9,12 @@ import { Repository } from '../../models/repository'
 import { fatalError } from '../fatal-error'
 import { IRepositoryAPIResult } from '../api'
 import { BaseStore } from './base-store'
-import { GHDatabase } from '../databases/database'
+import {
+  IRepository,
+  GHDatabase,
+  IGHRepository,
+  Collections,
+} from '../../database'
 
 /** The store for local repositories. */
 export class RepositoriesStore extends BaseStore {

@@ -49,7 +49,7 @@ import {
   enableSourceMaps,
   withSourceMappedStack,
 } from '../lib/source-map-support'
-import { GHDatabase } from '../lib/databases/database'
+import { GHDatabase } from '../database'
 
 if (__DEV__) {
   installDevGlobals()

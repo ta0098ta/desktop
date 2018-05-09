@@ -27,7 +27,7 @@ import {
 } from '../helpers/databases'
 import { StatsStore } from '../../src/lib/stats'
 import { InMemoryStore, AsyncInMemoryStore } from '../helpers/stores'
-import { GHDatabase } from '../../src/lib/databases/database'
+import { GHDatabase } from '../../src/database'
 
 describe('App', () => {
   let appStore: AppStore | null = null

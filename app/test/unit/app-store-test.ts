@@ -37,7 +37,7 @@ import {
 import { Repository } from '../../src/models/repository'
 import { Commit } from '../../src/models/commit'
 import { getCommit } from '../../src/lib/git'
-import { GHDatabase } from '../../src/lib/databases/database'
+import { GHDatabase } from '../../src/database'
 
 describe('AppStore', () => {
   async function createAppStore(): Promise<AppStore> {

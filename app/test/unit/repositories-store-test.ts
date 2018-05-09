@@ -2,8 +2,8 @@ import { expect } from 'chai'
 
 import { RepositoriesStore } from '../../src/lib/stores/repositories-store'
 import { TestRepositoriesDatabase } from '../helpers/databases'
-import { GHDatabase } from '../../src/lib/databases/database'
 import { IRepositoryAPIResult } from '../../src/lib/api'
+import { GHDatabase } from '../../src/database'
 
 describe('RepositoriesStore', () => {
   let repositoriesStore: RepositoriesStore | null = null
