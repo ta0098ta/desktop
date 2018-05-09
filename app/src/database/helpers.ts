@@ -43,6 +43,7 @@ export function isFork(ghRepository: IGHRepository) {
 
 export function toRepositoryModel(document: IRepository & LokiObj) {
   const result: IRepository = {
+    kind: 'repository',
     name: document.name,
     path: document.path,
     isMissing: document.isMissing,
