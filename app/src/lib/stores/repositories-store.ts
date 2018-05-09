@@ -46,7 +46,7 @@ export class RepositoriesStore extends BaseStore {
           .first()
 
         if (gitHubRepository == null) {
-          return this.putGitHubRepository(endpoint, apiRepository)
+          return this.putGitHubRepository(endpoint, apiResult)
         } else {
           return this.buildGitHubRepository(gitHubRepository)
         }
