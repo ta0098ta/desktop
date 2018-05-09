@@ -37,6 +37,7 @@ import {
 import { Repository } from '../../src/models/repository'
 import { Commit } from '../../src/models/commit'
 import { getCommit } from '../../src/lib/git'
+import { GHDatabase } from '../../src/lib/databases/database'
 
 describe('AppStore', () => {
   async function createAppStore(): Promise<AppStore> {
@@ -51,7 +52,10 @@ describe('AppStore', () => {
 
     const repositoriesDb = new TestRepositoriesDatabase()
     await repositoriesDb.reset()
-    const repositoriesStore = new RepositoriesStore(repositoriesDb)
+    const repositoriesStore = new RepositoriesStore(
+      repositoriesDb,
+      new GHDatabase('')
+    )
 
     const accountsStore = new AccountsStore(
       new InMemoryStore(),

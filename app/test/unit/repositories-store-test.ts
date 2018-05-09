@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import { RepositoriesStore } from '../../src/lib/stores/repositories-store'
 import { TestRepositoriesDatabase } from '../helpers/databases'
 import { IAPIRepository } from '../../src/lib/api'
+import { GHDatabase } from '../../src/lib/databases/database'
 
 describe('RepositoriesStore', () => {
   let repositoriesStore: RepositoriesStore | null = null
@@ -11,7 +12,7 @@ describe('RepositoriesStore', () => {
     const db = new TestRepositoriesDatabase()
     await db.reset()
 
-    repositoriesStore = new RepositoriesStore(db)
+    repositoriesStore = new RepositoriesStore(db, new GHDatabase(''))
   })
 
   describe('adding a new repository', () => {

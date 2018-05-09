@@ -9,15 +9,18 @@ import { Repository } from '../../models/repository'
 import { fatalError } from '../fatal-error'
 import { IAPIRepository } from '../api'
 import { BaseStore } from './base-store'
+import { GHDatabase } from '../databases/database'
 
 /** The store for local repositories. */
 export class RepositoriesStore extends BaseStore {
   private db: RepositoriesDatabase
+  private ghDb: GHDatabase
 
-  public constructor(db: RepositoriesDatabase) {
+  public constructor(db: RepositoriesDatabase, ghDB: GHDatabase) {
     super()
 
     this.db = db
+    this.ghDb = ghDB
   }
 
   /** Find the matching GitHub repository or add it if it doesn't exist. */
@@ -45,6 +48,10 @@ export class RepositoriesStore extends BaseStore {
       }
     )
   }
+
+  // private createGHRepository(repository: IRepository) {
+
+  // }
 
   private async buildGitHubRepository(
     dbRepo: IDatabaseGitHubRepository

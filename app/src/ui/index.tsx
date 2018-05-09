@@ -49,6 +49,7 @@ import {
   enableSourceMaps,
   withSourceMappedStack,
 } from '../lib/source-map-support'
+import { GHDatabase } from '../lib/databases/database'
 
 if (__DEV__) {
   installDevGlobals()
@@ -112,7 +113,8 @@ const signInStore = new SignInStore()
 
 const accountsStore = new AccountsStore(localStorage, TokenStore)
 const repositoriesStore = new RepositoriesStore(
-  new RepositoriesDatabase('Database')
+  new RepositoriesDatabase('Database'),
+  new GHDatabase('/Users/iamwillshepherd/Desktop/gh.db')
 )
 
 const pullRequestStore = new PullRequestStore(

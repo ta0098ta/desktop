@@ -27,6 +27,7 @@ import {
 } from '../helpers/databases'
 import { StatsStore } from '../../src/lib/stats'
 import { InMemoryStore, AsyncInMemoryStore } from '../helpers/stores'
+import { GHDatabase } from '../../src/lib/databases/database'
 
 describe('App', () => {
   let appStore: AppStore | null = null
@@ -46,7 +47,10 @@ describe('App', () => {
 
     const repositoriesDb = new TestRepositoriesDatabase()
     await repositoriesDb.reset()
-    const repositoriesStore = new RepositoriesStore(repositoriesDb)
+    const repositoriesStore = new RepositoriesStore(
+      repositoriesDb,
+      new GHDatabase('')
+    )
 
     const accountsStore = new AccountsStore(
       new InMemoryStore(),
