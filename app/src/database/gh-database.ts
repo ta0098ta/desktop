@@ -19,8 +19,8 @@ export class GHDatabase {
     }
   }
 
-  public save() {
-    this.db.save(this.onSaveError)
+  public async save() {
+    await this.db.save(this.onSaveError)
   }
 
   private initCollections() {
