@@ -1,12 +1,11 @@
+import * as Path from 'path'
 import {
   RepositoriesDatabase,
   IDatabaseGitHubRepository,
-  IDatabaseOwner,
 } from '../databases/repositories-database'
 import { Owner } from '../../models/owner'
 import { GitHubRepository } from '../../models/github-repository'
 import { Repository } from '../../models/repository'
-import { fatalError } from '../fatal-error'
 import { IRepositoryAPIResult } from '../api'
 import { BaseStore } from './base-store'
 import {
@@ -14,7 +13,9 @@ import {
   GHDatabase,
   IGHRepository,
   Collections,
+  toRepositoryModel,
 } from '../../database'
+import { fatalError } from '../fatal-error'
 
 /** The store for local repositories. */
 export class RepositoriesStore extends BaseStore {
@@ -28,30 +29,89 @@ export class RepositoriesStore extends BaseStore {
     this.ghDb = ghDB
   }
 
+  public async addParentGHRepository(
+    repository: IRepository,
+    endpoint: string,
+    head: IRepositoryAPIResult,
+    base: IRepositoryAPIResult
+  ): Promise<void> {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    const document = collection.findOne({
+      name: repository.name,
+      path: repository.path,
+    })
+
+    if (document === null) {
+      return fatalError('Repository not found')
+    }
+
+    if (document.ghRepository == null) {
+      return fatalError("Cannot add base repo when gh repo doesn't exist")
+    }
+
+    await collection.findAndUpdate(
+      {
+        name: repository.name,
+        path: repository.path,
+      },
+      r => ({
+        kind: 'repository',
+        ...r,
+        ghRepository: {
+          ...this.createGHRepository(r, head, endpoint),
+          parent: this.createGHRepository(r, base, endpoint),
+        },
+      })
+    )
+
+    await this.ghDb.save()
+    this.emitUpdate()
+  }
+
   /** Find the matching GitHub repository or add it if it doesn't exist. */
   public async upsertGitHubRepository(
+    repository: IRepository,
     endpoint: string,
     apiResult: IRepositoryAPIResult
-  ): Promise<GitHubRepository> {
-    return this.db.transaction(
-      'rw',
-      this.db.repositories,
-      this.db.gitHubRepositories,
-      this.db.owners,
-      async () => {
-        const gitHubRepository = await this.db.gitHubRepositories
-          .where('cloneURL')
-          .equals(apiResult.clone_url)
-          .limit(1)
-          .first()
+  ): Promise<IGHRepository> {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    const document = collection.findOne({
+      name: repository.name,
+      path: repository.path,
+    })
 
-        if (gitHubRepository == null) {
-          return this.putGitHubRepository(endpoint, apiResult)
-        } else {
-          return this.buildGitHubRepository(gitHubRepository)
-        }
+    if (document === null) {
+      return fatalError('Repository not found')
+    }
+
+    if (document.ghRepository != null) {
+      return document.ghRepository
+    } else {
+      await collection.findAndUpdate(
+        {
+          name: repository.name,
+          path: repository.path,
+        },
+        r => ({
+          ...r,
+          ghRepository: this.createGHRepository(r, apiResult, endpoint),
+        })
+      )
+
+      await this.ghDb.save()
+
+      const repo = await collection.findOne({
+        name: repository.name,
+        path: repository.path,
+      })
+
+      if (repo === null) {
+        return fatalError('Write failed.')
       }
-    )
+
+      this.emitUpdate()
+      return toRepositoryModel(repo).ghRepository!
+    }
   }
 
   public async addGHRepository(
@@ -70,6 +130,7 @@ export class RepositoriesStore extends BaseStore {
         ghRepository: this.createGHRepository(r, apiResult, endpoint),
       })
     )
+    await this.ghDb.save()
   }
 
   private createGHRepository(
@@ -78,6 +139,7 @@ export class RepositoriesStore extends BaseStore {
     endpoint?: string
   ): IGHRepository {
     const ghRepo: IGHRepository = {
+      kind: 'gh-repository',
       name: apiResult.name,
       defaultBranch: apiResult.default_branch,
       isPrivate: apiResult.private,
@@ -90,10 +152,9 @@ export class RepositoriesStore extends BaseStore {
         endpoint: endpoint || '', // what is endpoint?
         avatarUrl: apiResult.owner.avatar_url,
       },
-      forkedFrom:
-        (apiResult.parent &&
-          this.createGHRepository(repository, apiResult.parent)) ||
-        undefined, // where do forked repos get their endpoint from
+      parent:
+        apiResult.parent &&
+        this.createGHRepository(repository, apiResult.parent), // where do forked repos get their endpoint from
       issues: [],
       mentionables: [],
       pullRequests: [],
@@ -141,36 +202,11 @@ export class RepositoriesStore extends BaseStore {
   }
 
   /** Get all the local repositories. */
-  public getAll(): Promise<ReadonlyArray<Repository>> {
-    return this.db.transaction(
-      'r',
-      this.db.repositories,
-      this.db.gitHubRepositories,
-      this.db.owners,
-      async () => {
-        const inflatedRepos = new Array<Repository>()
-        const repos = await this.db.repositories.toArray()
-        for (const repo of repos) {
-          let inflatedRepo: Repository | null = null
-          let gitHubRepository: GitHubRepository | null = null
-          if (repo.gitHubRepositoryID) {
-            gitHubRepository = await this.findGitHubRepositoryByID(
-              repo.gitHubRepositoryID
-            )
-          }
+  public async getAll(): Promise<ReadonlyArray<IRepository>> {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    const repos = collection.find().map(r => toRepositoryModel(r))
 
-          inflatedRepo = new Repository(
-            repo.path,
-            repo.id!,
-            gitHubRepository,
-            repo.missing
-          )
-          inflatedRepos.push(inflatedRepo)
-        }
-
-        return inflatedRepos
-      }
-    )
+    return repos
   }
 
   /**
@@ -178,229 +214,105 @@ export class RepositoriesStore extends BaseStore {
    *
    * If a repository already exists with that path, it will be returned instead.
    */
-  public async addRepository(path: string): Promise<Repository> {
-    await this.addRepository2(path) //testing
-
-    const repository = await this.db.transaction(
-      'rw',
-      this.db.repositories,
-      this.db.gitHubRepositories,
-      this.db.owners,
-      async () => {
-        const repos = await this.db.repositories.toArray()
-        const record = repos.find(r => r.path === path)
-        let recordId: number
-        let gitHubRepo: GitHubRepository | null = null
-
-        if (record != null) {
-          recordId = record.id!
-
-          if (record.gitHubRepositoryID != null) {
-            gitHubRepo = await this.findGitHubRepositoryByID(
-              record.gitHubRepositoryID
-            )
-          }
-        } else {
-          recordId = await this.db.repositories.add({
-            path,
-            gitHubRepositoryID: null,
-            missing: false,
-          })
-        }
-
-        return new Repository(path, recordId, gitHubRepo, false)
-      }
-    )
-
-    this.emitUpdate()
-
-    return repository
-  }
-
-  public async addRepository2(path: string) {
+  public async addRepository(path: string): Promise<IRepository> {
     const collection = this.ghDb.getCollection(Collections.Repository)
     const repo = collection.findOne({ path })
 
     if (repo != null) {
-      return
+      return toRepositoryModel(repo)
     }
 
-    await collection.insertOne({ path, isMissing: false })
-  }
+    const document = await collection.insertOne({
+      path,
+      kind: 'repository',
+      name: Path.basename(path),
+      isMissing: false,
+    })
 
-  /** Remove the repository with the given ID. */
-  public async removeRepository(repoID: number): Promise<void> {
-    await this.db.repositories.delete(repoID)
+    if (document === undefined) {
+      throw new Error('Write failed')
+    }
 
+    await this.ghDb.save()
     this.emitUpdate()
+
+    return toRepositoryModel(document)
   }
 
   /** Update the repository's `missing` flag. */
   public async updateRepositoryMissing(
-    repository: Repository,
+    repository: IRepository,
     missing: boolean
-  ): Promise<Repository> {
-    const repoID = repository.id
-    if (!repoID) {
-      return fatalError(
-        '`updateRepositoryMissing` can only update `missing` for a repository which has been added to the database.'
-      )
+  ): Promise<IRepository> {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    collection.findAndUpdate(
+      { name: repository.name, path: repository.path },
+      r => ({
+        ...r,
+        isMissing: missing,
+      })
+    )
+
+    const updatedRepo: IRepository = {
+      ...repository,
+      isMissing: missing,
     }
 
-    const gitHubRepositoryID = repository.gitHubRepository
-      ? repository.gitHubRepository.dbID
-      : null
-    await this.db.repositories.put({
-      id: repository.id,
-      path: repository.path,
-      missing,
-      gitHubRepositoryID,
-    })
-
+    this.ghDb.save()
     this.emitUpdate()
 
-    return new Repository(
-      repository.path,
-      repository.id,
-      repository.gitHubRepository,
-      missing
-    )
+    return updatedRepo
   }
 
   /** Update the repository's path. */
   public async updateRepositoryPath(
-    repository: Repository,
+    repository: IRepository,
     path: string
-  ): Promise<Repository> {
-    const repoID = repository.id
-    if (!repoID) {
-      return fatalError(
-        '`updateRepositoryPath` can only update the path for a repository which has been added to the database.'
-      )
+  ): Promise<IRepository> {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    collection.findAndUpdate(
+      { name: repository.name, path: repository.path },
+      r => ({
+        ...r,
+        path,
+      })
+    )
+
+    const newRepo: IRepository = {
+      ...repository,
+      path,
+      isMissing: false,
     }
 
-    const gitHubRepositoryID = repository.gitHubRepository
-      ? repository.gitHubRepository.dbID
-      : null
-    await this.db.repositories.put({
-      id: repository.id,
-      missing: false,
-      path: path,
-      gitHubRepositoryID,
-    })
-
+    this.ghDb.save()
     this.emitUpdate()
 
-    return new Repository(
-      path,
-      repository.id,
-      repository.gitHubRepository,
-      false
-    )
-  }
-
-  private async putOwner(endpoint: string, login: string): Promise<Owner> {
-    login = login.toLowerCase()
-
-    const existingOwner = await this.db.owners
-      .where('[endpoint+login]')
-      .equals([endpoint, login])
-      .first()
-    if (existingOwner) {
-      return new Owner(login, endpoint, existingOwner.id!)
-    }
-
-    const dbOwner: IDatabaseOwner = {
-      login,
-      endpoint,
-    }
-    const id = await this.db.owners.add(dbOwner)
-    return new Owner(login, endpoint, id)
-  }
-
-  private async putGitHubRepository(
-    endpoint: string,
-    gitHubRepository: IRepositoryAPIResult
-  ): Promise<GitHubRepository> {
-    let parent: GitHubRepository | null = null
-    if (gitHubRepository.parent) {
-      parent = await this.putGitHubRepository(endpoint, gitHubRepository.parent)
-    }
-
-    const login = gitHubRepository.owner.login.toLowerCase()
-    const owner = await this.putOwner(endpoint, login)
-
-    const existingRepo = await this.db.gitHubRepositories
-      .where('[ownerID+name]')
-      .equals([owner.id!, gitHubRepository.name])
-      .first()
-
-    let updatedGitHubRepo: IDatabaseGitHubRepository = {
-      ownerID: owner.id!,
-      name: gitHubRepository.name,
-      private: gitHubRepository.private,
-      htmlURL: gitHubRepository.html_url,
-      defaultBranch: gitHubRepository.default_branch,
-      cloneURL: gitHubRepository.clone_url,
-      parentID: parent ? parent.dbID : null,
-    }
-    if (existingRepo) {
-      updatedGitHubRepo = { ...updatedGitHubRepo, id: existingRepo.id }
-    }
-
-    const id = await this.db.gitHubRepositories.put(updatedGitHubRepo)
-    return new GitHubRepository(
-      updatedGitHubRepo.name,
-      owner,
-      id,
-      updatedGitHubRepo.private,
-      updatedGitHubRepo.htmlURL,
-      updatedGitHubRepo.defaultBranch,
-      updatedGitHubRepo.cloneURL,
-      parent
-    )
+    return newRepo
   }
 
   /** Add or update the repository's GitHub repository. */
   public async updateGitHubRepository(
-    repository: Repository,
+    repository: IRepository,
     endpoint: string,
-    gitHubRepository: IRepositoryAPIResult
-  ): Promise<Repository> {
-    const repoID = repository.id
-    if (!repoID) {
-      return fatalError(
-        '`updateGitHubRepository` can only update a GitHub repository for a repository which has been added to the database.'
-      )
+    apiResult: IRepositoryAPIResult
+  ): Promise<IRepository> {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    collection.findAndUpdate(
+      { name: repository.name, path: repository.path },
+      r => ({
+        ...r,
+        ghRepository: this.createGHRepository(repository, apiResult, endpoint),
+      })
+    )
+
+    const newRepo: IRepository = {
+      ...repository,
+      ghRepository: this.createGHRepository(repository, apiResult, endpoint),
     }
 
-    const updatedGitHubRepo = await this.db.transaction(
-      'rw',
-      this.db.repositories,
-      this.db.gitHubRepositories,
-      this.db.owners,
-      async () => {
-        const localRepo = (await this.db.repositories.get(repoID))!
-        const updatedGitHubRepo = await this.putGitHubRepository(
-          endpoint,
-          gitHubRepository
-        )
-
-        await this.db.repositories.update(localRepo.id!, {
-          gitHubRepositoryID: updatedGitHubRepo.dbID,
-        })
-
-        return updatedGitHubRepo
-      }
-    )
-
+    this.ghDb.save()
     this.emitUpdate()
 
-    return new Repository(
-      repository.path,
-      repository.id,
-      updatedGitHubRepo,
-      repository.missing
-    )
+    return newRepo
   }
 }
