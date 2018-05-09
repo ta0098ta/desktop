@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import * as fs from 'fs'
-import { GHDatabase, Collection } from '../../../src/lib/databases/database'
+import { GHDatabase, Collections } from '../../../src/database'
 
 const TestDbPath = '/Users/williamshepherd/Desktop/ghd.test.db'
 
@@ -9,7 +9,7 @@ describe('Database', () => {
     it('initializes all collections', () => {
       const db = new GHDatabase(TestDbPath)
 
-      const repos = db.getCollection(Collection.Repositories)
+      const repos = db.getCollection(Collections.Repository)
 
       expect(repos).is.not.null
     })
@@ -18,7 +18,7 @@ describe('Database', () => {
   describe('Adding data', () => {
     it.only('persists the data to disk', async () => {
       const db = new GHDatabase(TestDbPath)
-      const repos = db.getCollection(Collection.Repositories)
+      const repos = db.getCollection(Collections.Repository)
       repos.insert({
         name: 'test',
         path: '~/ghd.test.db',
