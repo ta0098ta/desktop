@@ -19,9 +19,27 @@ export function computeGHRepositoryHash(ghRepo: IGHRepository): string {
       ${ghRepo.name}+
       ${ghRepo.htmlUrl}+
       ${computeUserHash(ghRepo.owner)}+
-      ${ghRepo.forkedFrom && computeGHRepositoryHash(ghRepo.forkedFrom)}`
+      ${ghRepo.parent && computeGHRepositoryHash(ghRepo.parent)}`
+}
+
+export function computeRepositoryHash(repo: IRepository): string {
+  return `${repo.name}+
+      ${repo.path}+
+      ${repo.isMissing}+
+      ${repo.ghRepository && computeGHRepositoryHash(repo.ghRepository)}`
 }
 
 export function isFork(ghRepository: IGHRepository) {
-  return ghRepository.forkedFrom != null
+  return ghRepository.parent != null
+}
+
+export function toRepositoryModel(document: IRepository & LokiObj) {
+  const result: IRepository = {
+    name: document.name,
+    path: document.path,
+    isMissing: document.isMissing,
+    ghRepository: document.ghRepository,
+  }
+
+  return result
 }
