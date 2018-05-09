@@ -19,9 +19,10 @@ describe('Database', () => {
     it.only('persists the data to disk', async () => {
       const db = new GHDatabase(TestDbPath)
       const repos = db.getCollection(Collections.Repository)
-      repos.insert({
+      repos.insertOne({
         name: 'test',
         path: '~/ghd.test.db',
+        isMissing: false,
       })
 
       await db.save()
