@@ -1,11 +1,7 @@
-import {
-  PullRequestDatabase,
-  IPullRequest,
-  IPullRequestStatus,
-} from '../databases'
+import { PullRequestDatabase } from '../databases'
 import { GitHubRepository } from '../../models/github-repository'
 import { Account } from '../../models/account'
-import { API, IAPIPullRequest } from '../api'
+import { API, IPullRequestAPIResult } from '../api'
 import { fatalError, forceUnwrap } from '../fatal-error'
 import { RepositoriesStore } from './repositories-store'
 import {
@@ -17,6 +13,13 @@ import { TypedBaseStore } from './base-store'
 import { Repository } from '../../models/repository'
 import { getRemotes, removeRemote } from '../git'
 import { IRemote, ForkedRemotePrefix } from '../../models/remote'
+import {
+  getFullName,
+  IRepository,
+  getEndpoint,
+  IPullRequest,
+  IPullRequestStatus,
+} from '../../database'
 
 const Decrement = (n: number) => n - 1
 const Increment = (n: number) => n + 1
@@ -189,7 +192,7 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
   }
 
   private async pruneForkedRemotes(
-    repository: Repository,
+    repository: IRepository,
     pullRequests: ReadonlyArray<PullRequest>
   ) {
     const remotes = await getRemotes(repository)
@@ -223,7 +226,7 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
   }
 
   private async deleteRemotes(
-    repository: Repository,
+    repository: IRepository,
     remotes: ReadonlyArray<IRemote>
   ) {
     const promises: Array<Promise<void>> = []
@@ -267,7 +270,12 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
         state: combinedRefStatus.state,
         totalCount: combinedRefStatus.total_count,
         sha: pr.head.sha,
-        statuses: combinedRefStatus.statuses,
+        statuses: combinedRefStatus.statuses.map(s => ({
+          state: s.state,
+          targetUrl: s.target_url,
+          description: s.description,
+          context: s.context,
+        })),
       })
     }
 
@@ -307,21 +315,16 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
   }
 
   private async cachePullRequests(
-    pullRequestsFromAPI: ReadonlyArray<IAPIPullRequest>,
-    repository: GitHubRepository
+    apiResults: ReadonlyArray<IPullRequestAPIResult>,
+    repository: IRepository
   ): Promise<void> {
-    const repoDbId = repository.dbID
+    const ghRepo = forceUnwrap(
+      'Cannot store pull requests for non github repos',
+      repository.ghRepository
+    )
+    const prs = new Array<IPullRequest>()
 
-    if (repoDbId == null) {
-      return fatalError(
-        "Cannot store pull requests for a repository that hasn't been inserted into the database!"
-      )
-    }
-
-    const table = this.pullRequestDatabase.pullRequests
-    const prsToInsert = new Array<IPullRequest>()
-
-    for (const pr of pullRequestsFromAPI) {
+    for (const prAPIResult of apiResults) {
       // `pr.head.repo` represents the source of the pull request. It might be
       // a branch associated with the current repository, or a fork of the
       // current repository.
@@ -329,58 +332,52 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
       // In cases where the user has removed the fork of the repository after
       // opening a pull request, this can be `null`, and the app will not store
       // this pull request.
-
-      if (pr.head.repo == null) {
+      if (prAPIResult.head.repo == null) {
         log.debug(
-          `Unable to store pull request #${pr.number} for repository ${
-            repository.fullName
-          } as it has no head repository associated with it`
+          `Unable to store pull request #${
+            prAPIResult.number
+          } for repository ${getFullName(
+            repository
+          )} as it has no head repository associated with it`
         )
         continue
       }
 
-      const githubRepo = await this.repositoryStore.upsertGitHubRepository(
-        repository.endpoint,
-        pr.head.repo
-      )
-
-      const githubRepoDbId = forceUnwrap(
-        'PR cannot have non-existent repo',
-        githubRepo.dbID
+      await this.repositoryStore.upsertGitHubRepository(
+        repository,
+        getEndpoint(ghRepo),
+        prAPIResult.head.repo
       )
 
       // We know the base repo isn't null since that's where we got the PR from
       // in the first place.
-      const parentRepo = forceUnwrap(
-        'PR cannot have a null base repo',
-        pr.base.repo
-      )
-      const parentGitHubRepo = await this.repositoryStore.upsertGitHubRepository(
-        repository.endpoint,
-        parentRepo
-      )
-      const parentGitHubRepoDbId = forceUnwrap(
-        'PR cannot have a null parent database id',
-        parentGitHubRepo.dbID
+      await this.repositoryStore.upsertGitHubRepository(
+        repository,
+        getEndpoint(ghRepo),
+        prAPIResult.base.repo!
       )
 
-      prsToInsert.push({
-        number: pr.number,
-        title: pr.title,
-        createdAt: pr.created_at,
+      prs.push({
+        number: prAPIResult.number,
+        title: prAPIResult.title,
+        createdAt: prAPIResult.created_at,
         head: {
-          ref: pr.head.ref,
-          sha: pr.head.sha,
-          repoId: githubRepoDbId,
+          ref: prAPIResult.head.ref,
+          sha: prAPIResult.head.sha,
         },
         base: {
-          ref: pr.base.ref,
-          sha: pr.base.sha,
-          repoId: parentGitHubRepoDbId,
+          ref: prAPIResult.base.ref,
+          sha: prAPIResult.base.sha,
         },
-        author: pr.user.login,
+        author: prAPIResult.user.login,
       })
     }
+
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    const document = collection.findOne({
+      name: repository.name,
+      path: repository.path,
+    })
 
     return this.pullRequestDatabase.transaction('rw', table, async () => {
       // we need to delete the stales PRs from the db
@@ -391,8 +388,8 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
         .equals(repoDbId)
         .delete()
 
-      if (prsToInsert.length > 0) {
-        await table.bulkAdd(prsToInsert)
+      if (prs.length > 0) {
+        await table.bulkAdd(prs)
       }
     })
   }
