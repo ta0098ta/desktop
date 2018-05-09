@@ -1,15 +1,13 @@
 export type CIStatus = 'failure' | 'pending' | 'success'
 
 export interface IRepository {
-  readonly kind?: 'standard'
-  readonly name: string
-  readonly displayName?: string
+  readonly name?: string
   readonly path: string
+  readonly isMissing: boolean
   readonly ghRepository?: IGHRepository
 }
 
 export interface IGHRepository {
-  readonly kind?: 'gh'
   readonly name: string
   readonly defaultBranch: string
   readonly isPrivate: boolean
