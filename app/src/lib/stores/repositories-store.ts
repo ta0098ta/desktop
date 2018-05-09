@@ -54,9 +54,53 @@ export class RepositoriesStore extends BaseStore {
     )
   }
 
-  // private createGHRepository(repository: IRepository) {
+  public async addGHRepository(
+    repository: Repository,
+    endpoint: string,
+    apiResult: IRepositoryAPIResult
+  ) {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    await collection.findAndUpdate(
+      {
+        name: repository.name,
+        path: repository.path,
+      },
+      r => ({
+        ...r,
+        ghRepository: this.createGHRepository(r, apiResult, endpoint),
+      })
+    )
+  }
 
-  // }
+  private createGHRepository(
+    repository: IRepository,
+    apiResult: IRepositoryAPIResult,
+    endpoint?: string
+  ): IGHRepository {
+    const ghRepo: IGHRepository = {
+      name: apiResult.name,
+      defaultBranch: apiResult.default_branch,
+      isPrivate: apiResult.private,
+      cloneUrl: apiResult.clone_url,
+      htmlUrl: apiResult.html_url,
+      owner: {
+        name: apiResult.owner.name,
+        login: apiResult.owner.login,
+        email: apiResult.owner.email,
+        endpoint: endpoint || '', // what is endpoint?
+        avatarUrl: apiResult.owner.avatar_url,
+      },
+      forkedFrom:
+        (apiResult.parent &&
+          this.createGHRepository(repository, apiResult.parent)) ||
+        undefined, // where do forked repos get their endpoint from
+      issues: [],
+      mentionables: [],
+      pullRequests: [],
+    }
+
+    return ghRepo
+  }
 
   private async buildGitHubRepository(
     dbRepo: IDatabaseGitHubRepository
@@ -135,6 +179,8 @@ export class RepositoriesStore extends BaseStore {
    * If a repository already exists with that path, it will be returned instead.
    */
   public async addRepository(path: string): Promise<Repository> {
+    await this.addRepository2(path) //testing
+
     const repository = await this.db.transaction(
       'rw',
       this.db.repositories,
@@ -169,6 +215,17 @@ export class RepositoriesStore extends BaseStore {
     this.emitUpdate()
 
     return repository
+  }
+
+  public async addRepository2(path: string) {
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    const repo = collection.findOne({ path })
+
+    if (repo != null) {
+      return
+    }
+
+    await collection.insertOne({ path, isMissing: false })
   }
 
   /** Remove the repository with the given ID. */
