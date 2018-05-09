@@ -1,7 +1,7 @@
 export type CIStatus = 'failure' | 'pending' | 'success'
 
 export interface IRepository {
-  readonly name?: string
+  readonly name: string
   readonly path: string
   readonly isMissing: boolean
   readonly ghRepository?: IGHRepository
@@ -12,10 +12,10 @@ export interface IGHRepository {
   readonly defaultBranch: string
   readonly isPrivate: boolean
   readonly cloneUrl: string
-  readonly htmlUrl: string
+  readonly htmlUrl: string | null
   readonly issues: ReadonlyArray<IIssue>
   readonly owner: IUser
-  readonly forkedFrom?: IGHRepository
+  readonly parent: IGHRepository | null
   readonly mentionables: ReadonlyArray<IUser>
   readonly pullRequests: ReadonlyArray<IPullRequest>
 }
@@ -28,9 +28,9 @@ export interface IIssue {
 
 export interface IUser {
   readonly name: string | null
-  readonly login: string
+  readonly login: string //key
   readonly email: string | null
-  readonly endpoint: string
+  readonly endpoint: string //key
   readonly avatarUrl: string
 }
 
