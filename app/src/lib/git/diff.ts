@@ -2,8 +2,6 @@ import * as Path from 'path'
 import * as fileSystem from '../../lib/file-system'
 
 import { getBlobContents } from './show'
-
-import { Repository } from '../../models/repository'
 import {
   WorkingDirectoryFileChange,
   FileChange,
@@ -24,6 +22,7 @@ import {
 import { spawnAndComplete } from './spawn'
 
 import { DiffParser } from '../diff-parser'
+import { IRepository } from '../../database'
 
 /**
  * V8 has a limit on the size of string it can create (~256MB), and unless we want to
@@ -94,7 +93,7 @@ const imageFileExtensions = new Set([
  *                  to a commit.
  */
 export async function getCommitDiff(
-  repository: Repository,
+  repository: IRepository,
   file: FileChange,
   commitish: string
 ): Promise<IDiff> {
@@ -130,7 +129,7 @@ export async function getCommitDiff(
  * that all content in the file will be treated as additions.
  */
 export async function getWorkingDirectoryDiff(
-  repository: Repository,
+  repository: IRepository,
   file: WorkingDirectoryFileChange
 ): Promise<IDiff> {
   let successExitCodes: Set<number> | undefined
@@ -204,7 +203,7 @@ export async function getWorkingDirectoryDiff(
 }
 
 async function getImageDiff(
-  repository: Repository,
+  repository: IRepository,
   file: FileChange,
   commitish: string
 ): Promise<IImageDiff> {
@@ -262,7 +261,7 @@ async function getImageDiff(
 }
 
 export async function convertDiff(
-  repository: Repository,
+  repository: IRepository,
   file: FileChange,
   diff: IRawDiff,
   commitish: string,
@@ -364,7 +363,7 @@ function diffFromRawDiffOutput(output: Buffer): IRawDiff {
 
 function buildDiff(
   buffer: Buffer,
-  repository: Repository,
+  repository: IRepository,
   file: FileChange,
   commitish: string,
   lineEndingsChange?: LineEndingsChange
@@ -403,7 +402,7 @@ function buildDiff(
  * https://en.wikipedia.org/wiki/Data_URI_scheme
  */
 export async function getBlobImage(
-  repository: Repository,
+  repository: IRepository,
   path: string,
   commitish: string
 ): Promise<Image> {
@@ -421,7 +420,7 @@ export async function getBlobImage(
  * https://en.wikipedia.org/wiki/Data_URI_scheme
  */
 export async function getWorkingDirectoryImage(
-  repository: Repository,
+  repository: IRepository,
   file: FileChange
 ): Promise<Image> {
   const contents = await fileSystem.readFile(

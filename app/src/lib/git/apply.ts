@@ -1,12 +1,12 @@
 import { git } from './core'
 import { AppFileStatus, WorkingDirectoryFileChange } from '../../models/status'
 import { DiffType } from '../../models/diff'
-import { Repository } from '../../models/repository'
 import { getWorkingDirectoryDiff } from './diff'
 import { formatPatch } from '../patch-formatter'
+import { IRepository } from '../../database'
 
 export async function applyPatchToIndex(
-  repository: Repository,
+  repository: IRepository,
   file: WorkingDirectoryFileChange
 ): Promise<void> {
   // If the file was a rename we have to recreate that rename since we've

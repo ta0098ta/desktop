@@ -1,8 +1,8 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { DiffSelectionType } from '../../models/diff'
 import { applyPatchToIndex } from './apply'
 import { AppFileStatus, WorkingDirectoryFileChange } from '../../models/status'
+import { IRepository } from '../../database'
 
 interface IUpdateIndexOptions {
   /**
@@ -61,7 +61,7 @@ interface IUpdateIndexOptions {
  * @param options See the IUpdateIndexOptions interface for more details.
  */
 async function updateIndex(
-  repository: Repository,
+  repository: IRepository,
   paths: ReadonlyArray<string>,
   options: IUpdateIndexOptions = {}
 ) {
@@ -103,7 +103,7 @@ async function updateIndex(
  * reflects what the user has selected in the app.
  */
 export async function stageFiles(
-  repository: Repository,
+  repository: IRepository,
   files: ReadonlyArray<WorkingDirectoryFileChange>
 ): Promise<void> {
   const normal = []

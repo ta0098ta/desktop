@@ -68,34 +68,10 @@ describe('RepositoriesStore', () => {
 
       const repositories = await repositoriesStore!.getAll()
       const repo = repositories[0]
-      expect(repo.gitHubRepository!.private).to.equal(true)
-      expect(repo.gitHubRepository!.fork).to.equal(false)
-      expect(repo.gitHubRepository!.htmlURL).to.equal(
+      expect(repo.ghRepository!.isPrivate).to.equal(true)
+      expect(repo.ghRepository!.parent).to.equal(null)
+      expect(repo.ghRepository!.htmlUrl).to.equal(
         'https://github.com/my-user/my-repo'
-      )
-    })
-
-    it('reuses an existing GitHub repository', async () => {
-      const firstRepo = await repositoriesStore!.addRepository(
-        '/some/cool/path'
-      )
-      const updatedFirstRepo = await repositoriesStore!.updateGitHubRepository(
-        firstRepo,
-        'https://api.github.com',
-        gitHubRepo
-      )
-
-      const secondRepo = await repositoriesStore!.addRepository(
-        '/some/other/path'
-      )
-      const updatedSecondRepo = await repositoriesStore!.updateGitHubRepository(
-        secondRepo,
-        'https://api.github.com',
-        gitHubRepo
-      )
-
-      expect(updatedFirstRepo.gitHubRepository!.dbID).to.equal(
-        updatedSecondRepo.gitHubRepository!.dbID
       )
     })
   })

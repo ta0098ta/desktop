@@ -1,6 +1,7 @@
 import { git } from './core'
 import { Repository } from '../../models/repository'
 import { assertNever } from '../fatal-error'
+import { IRepository } from '../../database'
 
 /** The reset modes which are supported. */
 export const enum GitResetMode {
@@ -95,7 +96,7 @@ export async function resetPaths(
 }
 
 /** Unstage all paths. */
-export async function unstageAll(repository: Repository): Promise<true> {
+export async function unstageAll(repository: IRepository): Promise<true> {
   await git(['reset', '--', '.'], repository.path, 'unstageAll')
   return true
 }

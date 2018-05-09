@@ -32,6 +32,7 @@ import {
 } from '../../../src/models/diff'
 
 import * as fs from 'fs-extra'
+import { IRepository } from '../../../src/database'
 
 async function getTextDiff(
   repo: Repository,
@@ -43,11 +44,16 @@ async function getTextDiff(
 }
 
 describe('git/commit', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(async () => {
     const testRepoPath = setupFixtureRepository('test-repo')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = {
+      kind: 'repository',
+      name: 'test',
+      path: testRepoPath,
+      isMissing: false,
+    }
   })
 
   describe('createCommit normal', () => {

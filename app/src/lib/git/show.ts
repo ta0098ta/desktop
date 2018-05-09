@@ -4,6 +4,7 @@ import { git } from './core'
 import { spawnAndComplete } from './spawn'
 
 import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /**
  * Retrieve the binary contents of a blob from the repository at a given
@@ -22,7 +23,7 @@ import { Repository } from '../../models/repository'
  *                     root from where to read the blob contents
  */
 export async function getBlobContents(
-  repository: Repository,
+  repository: IRepository,
   commitish: string,
   path: string
 ): Promise<Buffer> {

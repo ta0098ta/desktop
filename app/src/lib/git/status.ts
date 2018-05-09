@@ -8,9 +8,9 @@ import {
 } from '../../models/status'
 import { parsePorcelainStatus, mapStatus } from '../status-parser'
 import { DiffSelectionType, DiffSelection } from '../../models/diff'
-import { Repository } from '../../models/repository'
 import { IAheadBehind } from '../../models/branch'
 import { fatalError } from '../../lib/fatal-error'
+import { IRepository } from '../../database/models'
 
 /** The encapsulation of the result from 'git status' */
 export interface IStatusResult {
@@ -54,7 +54,7 @@ function convertToAppStatus(status: FileEntry): AppFileStatus {
  *  and fail gracefully if the location is not a Git repository
  */
 export async function getStatus(
-  repository: Repository
+  repository: IRepository
 ): Promise<IStatusResult> {
   const result = await git(
     ['status', '--untracked-files=all', '--branch', '--porcelain=2', '-z'],

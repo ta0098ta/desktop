@@ -1,11 +1,12 @@
 import { git, GitError } from './core'
 import { stageFiles } from './update-index'
-import { Repository } from '../../models/repository'
+
 import { WorkingDirectoryFileChange } from '../../models/status'
 import { unstageAll } from './reset'
+import { IRepository } from '../../database'
 
 export async function createCommit(
-  repository: Repository,
+  repository: IRepository,
   message: string,
   files: ReadonlyArray<WorkingDirectoryFileChange>
 ): Promise<boolean> {
