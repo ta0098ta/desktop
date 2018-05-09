@@ -154,7 +154,7 @@ interface IAPIPullRequestRef {
 }
 
 /** Information about a pull request as returned by the GitHub API. */
-export interface IAPIPullRequest {
+export interface IPullRequestAPIResult {
   readonly number: number
   readonly title: string
   readonly created_at: string
@@ -417,10 +417,10 @@ export class API {
     owner: string,
     name: string,
     state: 'open' | 'closed' | 'all'
-  ): Promise<ReadonlyArray<IAPIPullRequest>> {
+  ): Promise<ReadonlyArray<IPullRequestAPIResult>> {
     const url = urlWithQueryString(`repos/${owner}/${name}/pulls`, { state })
     try {
-      const prs = await this.fetchAll<IAPIPullRequest>(url)
+      const prs = await this.fetchAll<IPullRequestAPIResult>(url)
       return prs
     } catch (e) {
       log.warn(`fetchPullRequests: failed for repository ${owner}/${name}`, e)

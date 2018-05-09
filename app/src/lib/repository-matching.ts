@@ -2,13 +2,13 @@ import * as URL from 'url'
 import * as Path from 'path'
 
 import { CloningRepository } from '../models/cloning-repository'
-import { Repository } from '../models/repository'
 import { Account } from '../models/account'
 import { IRemote } from '../models/remote'
 import { getHTMLURL } from './api'
 import { parseRemote } from './remote-parsing'
 import { caseInsensitiveEquals } from './compare'
 import { GitHubRepository } from '../models/github-repository'
+import { IRepository } from '../database'
 
 export interface IMatchedGitHubRepository {
   /**
@@ -77,9 +77,9 @@ function matchRemoteWithAccount(
  * @param path The path on disk which might be a repository
  */
 export function matchExistingRepository(
-  repositories: ReadonlyArray<Repository | CloningRepository>,
+  repositories: ReadonlyArray<IRepository | CloningRepository>,
   path: string
-): Repository | CloningRepository | null {
+): IRepository | CloningRepository | null {
   return (
     repositories.find(r => {
       if (__WIN32__) {

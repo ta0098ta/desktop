@@ -2,10 +2,11 @@ import { git } from './core'
 import { Repository } from '../../models/repository'
 import { IRemote } from '../../models/remote'
 import { findDefaultRemote } from '../stores/helpers/find-default-remote'
+import { IRepository } from '../../database'
 
 /** Get the remote names. */
 export async function getRemotes(
-  repository: Repository
+  repository: IRepository
 ): Promise<ReadonlyArray<IRemote>> {
   const result = await git(['remote', '-v'], repository.path, 'getRemotes')
   const output = result.stdout
@@ -20,7 +21,7 @@ export async function getRemotes(
 
 /** Get the name of the default remote. */
 export async function getDefaultRemote(
-  repository: Repository
+  repository: IRepository
 ): Promise<IRemote | null> {
   return findDefaultRemote(await getRemotes(repository))
 }
@@ -38,7 +39,7 @@ export async function addRemote(
 
 /** Removes an existing remote, or silently errors if it doesn't exist */
 export async function removeRemote(
-  repository: Repository,
+  repository: IRepository,
   name: string
 ): Promise<void> {
   const options = {

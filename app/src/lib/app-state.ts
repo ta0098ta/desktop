@@ -27,6 +27,7 @@ import { BranchesTab } from '../models/branches-tab'
 import { PullRequest } from '../models/pull-request'
 import { IAuthor } from '../models/author'
 import { ComparisonCache } from './comparison-cache'
+import { IRepository } from '../database'
 
 export { ICommitMessage }
 
@@ -67,7 +68,7 @@ export type PossibleSelections =
 /** All of the shared app state. */
 export interface IAppState {
   readonly accounts: ReadonlyArray<Account>
-  readonly repositories: ReadonlyArray<Repository | CloningRepository>
+  readonly repositories: ReadonlyArray<IRepository | CloningRepository>
 
   readonly selectedState: PossibleSelections | null
 

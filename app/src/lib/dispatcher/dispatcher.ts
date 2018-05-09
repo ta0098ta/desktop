@@ -55,6 +55,7 @@ import { FetchType } from '../../lib/stores'
 import { PullRequest } from '../../models/pull-request'
 import { IAuthor } from '../../models/author'
 import { ITrailer } from '../git/interpret-trailers'
+import { IRepository } from '../../database'
 
 /**
  * An error handler function.
@@ -91,7 +92,7 @@ export class Dispatcher {
    */
   public addRepositories(
     paths: ReadonlyArray<string>
-  ): Promise<ReadonlyArray<Repository>> {
+  ): Promise<ReadonlyArray<IRepository>> {
     return this.appStore._addRepositories(paths)
   }
 
@@ -165,8 +166,8 @@ export class Dispatcher {
 
   /** Select the repository. */
   public selectRepository(
-    repository: Repository | CloningRepository
-  ): Promise<Repository | null> {
+    repository: IRepository | CloningRepository
+  ): Promise<IRepository | null> {
     return this.appStore._selectRepository(repository)
   }
 
@@ -385,7 +386,7 @@ export class Dispatcher {
     url: string,
     path: string,
     options?: { branch?: string }
-  ): Promise<Repository | null> {
+  ): Promise<IRepository | null> {
     return this.appStore._completeOpenInDesktop(async () => {
       const { promise, repository } = this.appStore._clone(url, path, options)
       await this.selectRepository(repository)
@@ -946,7 +947,7 @@ export class Dispatcher {
   private async openRepository(
     url: string,
     branch: string | null
-  ): Promise<Repository | null> {
+  ): Promise<IRepository | null> {
     const state = this.appStore.getState()
     const repositories = state.repositories
     const existingRepository = repositories.find(r => {

@@ -130,6 +130,7 @@ import { IAuthor } from '../../models/author'
 import { ComparisonCache } from '../comparison-cache'
 import { AheadBehindUpdater } from './helpers/ahead-behind-updater'
 import { enableCompareSidebar } from '../feature-flag'
+import { IRepository } from '../../database';
 
 /**
  * Enum used by fetch to determine if
@@ -172,9 +173,9 @@ const BackgroundFetchMinimumInterval = 2 * 60 * 1000
 
 export class AppStore extends TypedBaseStore<IAppState> {
   private accounts: ReadonlyArray<Account> = new Array<Account>()
-  private repositories: ReadonlyArray<Repository> = new Array<Repository>()
+  private repositories: ReadonlyArray<IRepository> = []
 
-  private selectedRepository: Repository | CloningRepository | null = null
+  private selectedRepository: IRepository | CloningRepository | null = null
 
   /** The background fetcher for the currently selected repository. */
   private currentBackgroundFetcher: BackgroundFetcher | null = null
@@ -251,7 +252,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
   /** The function to resolve the current Open in Desktop flow. */
   private resolveOpenInDesktop:
-    | ((repository: Repository | null) => void)
+    | ((repository: IRepository | null) => void)
     | null = null
 
   private selectedCloneRepositoryTab: CloneRepositoryTab = CloneRepositoryTab.DotCom
@@ -992,8 +993,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
   /** This shouldn't be called directly. See `Dispatcher`. */
   public async _selectRepository(
-    repository: Repository | CloningRepository | null
-  ): Promise<Repository | null> {
+    repository: IRepository | CloningRepository | null
+  ): Promise<IRepository | null> {
     const previouslySelectedRepository = this.selectedRepository
 
     this.selectedRepository = repository
@@ -1946,9 +1947,9 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
   /** This shouldn't be called directly. See `Dispatcher`. */
   public async _repositoryWithRefreshedGitHubRepository(
-    repository: Repository
-  ): Promise<Repository> {
-    const oldGitHubRepository = repository.gitHubRepository
+    repository: IRepository
+  ): Promise<IRepository> {
+    const oldGitHubRepository = repository.ghRepository
 
     const matchedGitHubRepository = await this.matchGitHubRepository(repository)
     if (!matchedGitHubRepository) {
@@ -2029,7 +2030,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
   }
 
   private async matchGitHubRepository(
-    repository: Repository
+    repository: IRepository
   ): Promise<IMatchedGitHubRepository | null> {
     const remote = await getDefaultRemote(repository)
     return remote ? matchGitHubRepository(this.accounts, remote.url) : null
@@ -2990,8 +2991,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
    * the given function.
    */
   public async _completeOpenInDesktop(
-    fn: () => Promise<Repository | null>
-  ): Promise<Repository | null> {
+    fn: () => Promise<IRepository | null>
+  ): Promise<IRepository | null> {
     const resolve = this.resolveOpenInDesktop
     this.resolveOpenInDesktop = null
 
@@ -3061,9 +3062,10 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
   public async _addRepositories(
     paths: ReadonlyArray<string>
-  ): Promise<ReadonlyArray<Repository>> {
-    const addedRepositories = new Array<Repository>()
-    const lfsRepositories = new Array<Repository>()
+  ): Promise<ReadonlyArray<IRepository>> {
+    const addedRepositories = new Array<IRepository>()
+    const lfsRepositories = new Array<IRepository>()
+
     for (const path of paths) {
       const validatedPath = await validatedRepositoryPath(path)
       if (validatedPath) {

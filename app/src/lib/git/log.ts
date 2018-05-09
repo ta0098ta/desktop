@@ -7,6 +7,7 @@ import {
   getTrailerSeparatorCharacters,
   parseRawUnfoldedTrailers,
 } from './interpret-trailers'
+import { IRepository } from '../../database';
 
 /**
  * Map the raw status text from Git to an app-friendly value
@@ -48,7 +49,7 @@ function mapStatus(rawStatus: string): AppFileStatus {
  * Get the repository's commits using `revisionRange` and limited to `limit`
  */
 export async function getCommits(
-  repository: Repository,
+  repository: IRepository,
   revisionRange: string,
   limit: number,
   additionalArgs: ReadonlyArray<string> = []

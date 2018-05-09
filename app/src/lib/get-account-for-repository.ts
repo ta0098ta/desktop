@@ -1,16 +1,15 @@
-import { Repository } from '../models/repository'
 import { Account } from '../models/account'
 import { getAccountForEndpoint } from './api'
+import { IRepository } from '../database'
 
 /** Get the authenticated account for the repository. */
 export function getAccountForRepository(
   accounts: ReadonlyArray<Account>,
-  repository: Repository
+  repository: IRepository
 ): Account | null {
-  const gitHubRepository = repository.gitHubRepository
-  if (!gitHubRepository) {
-    return null
-  }
+  const gitHubRepository = repository.ghRepository
 
-  return getAccountForEndpoint(accounts, gitHubRepository.endpoint)
+  return gitHubRepository == null
+    ? null
+    : getAccountForEndpoint(accounts, gitHubRepository.owner.endpoint)
 }

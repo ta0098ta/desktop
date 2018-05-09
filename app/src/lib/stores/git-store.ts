@@ -68,6 +68,7 @@ import { IAuthor } from '../../models/author'
 import { formatCommitMessage } from '../format-commit-message'
 import { GitAuthor } from '../../models/git-author'
 import { BaseStore } from './base-store'
+import { IRepository } from '../../database'
 
 /** The number of commits to load from history per batch. */
 const CommitBatchSize = 100
@@ -94,7 +95,7 @@ export class GitStore extends BaseStore {
 
   private readonly requestsInFight = new Set<string>()
 
-  private readonly repository: Repository
+  private readonly repository: IRepository
 
   private _tip: Tip = { kind: TipState.Unknown }
 
@@ -124,7 +125,7 @@ export class GitStore extends BaseStore {
 
   private _lastFetched: Date | null = null
 
-  public constructor(repository: Repository, shell: IAppShell) {
+  public constructor(repository: IRepository, shell: IAppShell) {
     super()
 
     this.repository = repository
