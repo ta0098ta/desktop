@@ -35,7 +35,7 @@ import * as fs from 'fs-extra'
 import { IRepository } from '../../../src/database'
 
 async function getTextDiff(
-  repo: Repository,
+  repo: IRepository,
   file: WorkingDirectoryFileChange
 ): Promise<ITextDiff> {
   const diff = await getWorkingDirectoryDiff(repo, file)

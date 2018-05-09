@@ -13,6 +13,7 @@ type KlawEntry = {
 }
 
 import * as temp from 'temp'
+import { IRepository, createRepositoryModel } from '../../src/database'
 const _temp = temp.track()
 
 export const mkdirSync = _temp.mkdirSync
@@ -63,11 +64,11 @@ export function setupFixtureRepository(repositoryName: string): string {
  *
  * @returns the new local repository
  */
-export async function setupEmptyRepository(): Promise<Repository> {
+export async function setupEmptyRepository(): Promise<IRepository> {
   const repoPath = _temp.mkdirSync('desktop-empty-repo-')
   await GitProcess.exec(['init'], repoPath)
 
-  return new Repository(repoPath, -1, null, false)
+  return createRepositoryModel(repoPath, false, null)
 }
 
 /**

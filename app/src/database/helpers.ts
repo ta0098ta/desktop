@@ -56,3 +56,17 @@ export function toRepositoryModel(document: IRepository & LokiObj) {
 export function getEndpoint(repository: IGHRepository): string {
   return repository.owner.endpoint
 }
+
+export function createRepositoryModel(
+  path: string,
+  isMissing: boolean,
+  ghRepository: IGHRepository | null
+) {
+  return {
+    kind: 'repository',
+    name: (ghRepository && ghRepository.name) || Path.basename(path),
+    path,
+    isMissing,
+    ghRepository,
+  }
+}

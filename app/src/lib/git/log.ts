@@ -7,7 +7,7 @@ import {
   getTrailerSeparatorCharacters,
   parseRawUnfoldedTrailers,
 } from './interpret-trailers'
-import { IRepository } from '../../database';
+import { IRepository } from '../../database'
 
 /**
  * Map the raw status text from Git to an app-friendly value
@@ -190,7 +190,7 @@ export async function getChangedFiles(
 
 /** Get the commit for the given ref. */
 export async function getCommit(
-  repository: Repository,
+  repository: IRepository,
   ref: string
 ): Promise<Commit | null> {
   const commits = await getCommits(repository, ref, 1)

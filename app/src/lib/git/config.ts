@@ -1,9 +1,9 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /** Look up a config value by name in the repository. */
 export function getConfigValue(
-  repository: Repository,
+  repository: IRepository,
   name: string
 ): Promise<string | null> {
   return getConfigValueInPath(name, repository.path)

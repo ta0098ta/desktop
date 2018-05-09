@@ -1,6 +1,7 @@
 import { git } from './core'
 import { Repository } from '../../models/repository'
 import { getConfigValue } from './config'
+import { IRepository } from '../../database'
 
 /**
  * A representation of a Git commit message trailer.
@@ -73,7 +74,7 @@ export function parseSingleUnfoldedTrailer(
  * trailer separator is configured the default separator (:) will be returned.
  */
 export async function getTrailerSeparatorCharacters(
-  repository: Repository
+  repository: IRepository
 ): Promise<string> {
   return (await getConfigValue(repository, 'trailer.separators')) || ':'
 }
@@ -98,7 +99,7 @@ export async function getTrailerSeparatorCharacters(
  * @returns An array of zero or more parsed trailers
  */
 export async function parseTrailers(
-  repository: Repository,
+  repository: IRepository,
   commitMessage: string
 ): Promise<ReadonlyArray<ITrailer>> {
   const result = await git(
