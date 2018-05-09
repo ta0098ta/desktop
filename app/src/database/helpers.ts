@@ -1,11 +1,19 @@
+import * as Path from 'path'
 import { IGHRepository, IUser, IRepository } from '.'
 
-export function fullRepoName(repository: IRepository) {
-  if (repository.ghRepository == null) {
-    return repository.name
+export function getFullName(repository: IRepository | IGHRepository) {
+  let name: string = repository.name
+
+  if (repository.kind === 'repository') {
+    name =
+      repository.ghRepository == null
+        ? repository.name || Path.basename(repository.path)
+        : `${repository.ghRepository.owner.login}/${repository.name}`
+  } else if (repository.kind === 'gh-repository') {
+    name = `${repository.owner.login}/${repository.name}`
   }
 
-  return `${repository.ghRepository.owner.login}/${repository.name}`
+  return name
 }
 
 export function computeUserHash(user: IUser): string {
