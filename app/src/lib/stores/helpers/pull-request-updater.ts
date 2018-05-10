@@ -2,7 +2,7 @@ import { PullRequestStore } from '../pull-request-store'
 import { Account } from '../../../models/account'
 import { fatalError, forceUnwrap } from '../../fatal-error'
 import { PullRequest } from '../../../models/pull-request'
-import { Repository } from '../../../models/repository'
+import { IRepository } from '../../../database'
 
 //** Interval to check for pull requests */
 const PullRequestInterval = 1000 * 60 * 10
@@ -24,7 +24,7 @@ enum TimeoutHandles {
  * and status info from GitHub.
  */
 export class PullRequestUpdater {
-  private readonly repository: Repository
+  private readonly repository: IRepository
   private readonly account: Account
   private readonly store: PullRequestStore
 
@@ -34,7 +34,7 @@ export class PullRequestUpdater {
   private currentPullRequests: ReadonlyArray<PullRequest> = []
 
   public constructor(
-    repository: Repository,
+    repository: IRepository,
     account: Account,
     pullRequestStore: PullRequestStore
   ) {
@@ -47,7 +47,7 @@ export class PullRequestUpdater {
   public start() {
     const githubRepo = forceUnwrap(
       'Can only refresh pull requests for GitHub repositories',
-      this.repository.gitHubRepository
+      this.repository.ghRepository
     )
 
     if (!this.isStopped) {
@@ -69,7 +69,7 @@ export class PullRequestUpdater {
     this.timeoutHandles.set(
       TimeoutHandles.Status,
       window.setTimeout(() => {
-        this.store.fetchPullRequestStatuses(githubRepo, this.account)
+        this.store.fetchPullRequestStatuses(this.repository, this.account)
       }, StatusInterval)
     )
   }
@@ -107,13 +107,8 @@ export class PullRequestUpdater {
   }
 
   private async refreshPullRequestStatus() {
-    const githubRepo = forceUnwrap(
-      'Can only refresh pull requests for GitHub repositories',
-      this.repository.gitHubRepository
-    )
-
-    await this.store.fetchPullRequestStatuses(githubRepo, this.account)
-    const prs = await this.store.fetchPullRequestsFromCache(githubRepo)
+    await this.store.fetchPullRequestStatuses(this.repository, this.account)
+    const prs = await this.store.fetchPullRequestsFromCache(this.repository)
 
     for (const pr of prs) {
       const status = pr.status

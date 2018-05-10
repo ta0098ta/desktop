@@ -2,7 +2,6 @@ import * as React from 'react'
 import { CSSTransitionGroup } from 'react-transition-group'
 
 import { PullRequest } from '../../models/pull-request'
-import { Repository } from '../../models/repository'
 import { Branch } from '../../models/branch'
 import { BranchesTab } from '../../models/branches-tab'
 
@@ -17,13 +16,14 @@ import { PullRequestList } from './pull-request-list'
 import { PullRequestsLoading } from './pull-requests-loading'
 import { IBranchListItem } from './group-branches'
 import { renderDefaultBranch } from './branch-renderer'
+import { IRepository, getFullName } from '../../database'
 
 const PullRequestsLoadingCrossFadeInTimeout = 300
 const PullRequestsLoadingCrossFadeOutTimeout = 200
 
 interface IBranchesContainerProps {
   readonly dispatcher: Dispatcher
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly selectedTab: BranchesTab
   readonly allBranches: ReadonlyArray<Branch>
   readonly defaultBranch: Branch | null
@@ -71,7 +71,7 @@ export class BranchesContainer extends React.Component<
   }
 
   private renderTabBar() {
-    if (!this.props.repository.gitHubRepository) {
+    if (this.props.repository.ghRepository == null) {
       return null
     }
 
@@ -106,7 +106,7 @@ export class BranchesContainer extends React.Component<
 
   private renderSelectedTab() {
     let tab = this.props.selectedTab
-    if (!this.props.repository.gitHubRepository) {
+    if (this.props.repository.ghRepository == null) {
       tab = BranchesTab.Branches
     }
 
@@ -154,9 +154,7 @@ export class BranchesContainer extends React.Component<
 
     const pullRequests = this.props.pullRequests
     const repo = this.props.repository
-    const name = repo.gitHubRepository
-      ? repo.gitHubRepository.fullName
-      : repo.name
+    const name = repo.ghRepository ? getFullName(repo.ghRepository) : repo.name
     const isOnDefaultBranch =
       this.props.defaultBranch &&
       this.props.currentBranch &&

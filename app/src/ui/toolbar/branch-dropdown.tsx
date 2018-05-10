@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Dispatcher } from '../../lib/dispatcher'
 import { OcticonSymbol } from '../octicons'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { TipState } from '../../models/tip'
 import { ToolbarDropdown, DropdownState } from './dropdown'
 import { IRepositoryState } from '../../lib/app-state'
@@ -14,7 +14,7 @@ interface IBranchDropdownProps {
   readonly dispatcher: Dispatcher
 
   /** The currently selected repository. */
-  readonly repository: Repository
+  readonly repository: IRepository
 
   /** The current repository state as derived from AppState */
   readonly repositoryState: IRepositoryState

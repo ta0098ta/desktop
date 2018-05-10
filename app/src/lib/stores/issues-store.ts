@@ -1,8 +1,8 @@
 import { IssuesDatabase, IIssue } from '../databases/issues-database'
 import { API, IAPIIssue } from '../api'
 import { Account } from '../../models/account'
-import { GitHubRepository } from '../../models/github-repository'
-import { fatalError } from '../fatal-error'
+import { forceUnwrap } from '../fatal-error'
+import { GHDatabase, IRepository } from '../../database'
 
 /** The hard limit on the number of issue results we'd ever return. */
 const IssueResultsHardLimit = 100
@@ -10,10 +10,12 @@ const IssueResultsHardLimit = 100
 /** The store for GitHub issues. */
 export class IssuesStore {
   private db: IssuesDatabase
+  private ghDb: GHDatabase
 
   /** Initialize the store with the given database. */
-  public constructor(db: IssuesDatabase) {
+  public constructor(db: IssuesDatabase, ghDb: GHDatabase) {
     this.db = db
+    this.ghDb = ghDb
   }
 
   /**
@@ -22,27 +24,17 @@ export class IssuesStore {
    * using the 'since' parameter.
    */
   private async getLatestUpdatedAt(
-    repository: GitHubRepository
+    repository: IRepository
   ): Promise<Date | null> {
-    const gitHubRepositoryID = repository.dbID
-    if (!gitHubRepositoryID) {
-      return fatalError(
-        "Cannot get issues for a repository that hasn't been inserted into the database!"
-      )
-    }
-
-    const db = this.db
-
-    const latestUpdatedIssue = await db.issues
-      .where('[gitHubRepositoryID+updated_at]')
-      .between([gitHubRepositoryID], [gitHubRepositoryID + 1], true, false)
-      .last()
-
-    if (!latestUpdatedIssue || !latestUpdatedIssue.updated_at) {
-      return null
-    }
-
-    const lastUpdatedAt = new Date(latestUpdatedIssue.updated_at)
+    const ghRepo = forceUnwrap(
+      'Cannot access issues on non gh repo',
+      repository.ghRepository
+    )
+    //sorted so latest date is first
+    const issues = [...ghRepo.issues].sort(
+      (a, b) => (a.updatedAt > b.updatedAt ? -1 : 1)
+    )
+    const lastUpdatedAt = new Date(issues[0].updatedAt)
 
     return !isNaN(lastUpdatedAt.getTime()) ? lastUpdatedAt : null
   }
@@ -51,7 +43,7 @@ export class IssuesStore {
    * Refresh the issues for the current repository. This will delete any issues that have
    * been closed and update or add any issues that have changed or been added.
    */
-  public async refreshIssues(repository: GitHubRepository, account: Account) {
+  public async refreshIssues(repository: IRepository, account: Account) {
     const api = API.fromAccount(account)
     const lastUpdatedAt = await this.getLatestUpdatedAt(repository)
 
@@ -77,22 +69,13 @@ export class IssuesStore {
 
   private async storeIssues(
     issues: ReadonlyArray<IAPIIssue>,
-    repository: GitHubRepository
+    repository: IRepository
   ): Promise<void> {
-    const gitHubRepositoryID = repository.dbID
-    if (!gitHubRepositoryID) {
-      fatalError(
-        `Cannot store issues for a repository that hasn't been inserted into the database!`
-      )
-      return
-    }
-
     const issuesToDelete = issues.filter(i => i.state === 'closed')
     const issuesToUpsert = issues
       .filter(i => i.state === 'open')
       .map<IIssue>(i => {
         return {
-          gitHubRepositoryID,
           number: i.number,
           title: i.title,
           updated_at: i.updated_at,
@@ -138,26 +121,16 @@ export class IssuesStore {
   }
 
   /** Get issues whose title or number matches the text. */
-  public async getIssuesMatching(
-    repository: GitHubRepository,
+  public getIssuesMatching(
+    repository: IRepository,
     text: string
-  ): Promise<ReadonlyArray<IIssue>> {
-    const gitHubRepositoryID = repository.dbID
-    if (!gitHubRepositoryID) {
-      fatalError(
-        "Cannot get issues for a repository that hasn't been inserted into the database!"
-      )
-      return []
-    }
+  ): ReadonlyArray<IIssue> {
+    const sortedIssues = [...repository.issues].sort(
+      (a, b) => (a.number < b.number ? -1 : 1)
+    )
 
-    if (!text.length) {
-      const issues = await this.db.issues
-        .where('gitHubRepositoryID')
-        .equals(gitHubRepositoryID)
-        .limit(IssueResultsHardLimit)
-        .reverse()
-        .sortBy('number')
-      return issues
+    if (text.length === 0) {
+      return sortedIssues
     }
 
     const MaxScore = 1
@@ -173,13 +146,8 @@ export class IssuesStore {
       return 0
     }
 
-    const issuesCollection = await this.db.issues
-      .where('gitHubRepositoryID')
-      .equals(gitHubRepositoryID)
-      .filter(i => score(i) > 0)
+    const filteredIssues = sortedIssues.filter(issue => score(issue) > 0)
 
-    const issues = await issuesCollection.limit(IssueResultsHardLimit).toArray()
-
-    return issues.sort((a, b) => score(b) - score(a))
+    return filteredIssues
   }
 }

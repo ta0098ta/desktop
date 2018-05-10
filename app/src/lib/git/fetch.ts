@@ -1,8 +1,8 @@
 import { git, IGitExecutionOptions, gitNetworkArguments } from './core'
-import { Repository } from '../../models/repository'
 import { FetchProgressParser, executionOptionsWithProgress } from '../progress'
 import { IFetchProgress } from '../app-state'
 import { IGitAccount, envForAuthentication } from './authentication'
+import { IRepository } from '../../database'
 
 /**
  * Fetch from the given remote.
@@ -20,7 +20,7 @@ import { IGitAccount, envForAuthentication } from './authentication'
  *                           'git fetch'.
  */
 export async function fetch(
-  repository: Repository,
+  repository: IRepository,
   account: IGitAccount | null,
   remote: string,
   progressCallback?: (progress: IFetchProgress) => void
@@ -69,7 +69,7 @@ export async function fetch(
 
 /** Fetch a given refspec from the given remote. */
 export async function fetchRefspec(
-  repository: Repository,
+  repository: IRepository,
   account: IGitAccount | null,
   remote: string,
   refspec: string

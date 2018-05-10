@@ -2,8 +2,6 @@ import { ChildProcess } from 'child_process'
 
 import { git } from './core'
 import { spawnAndComplete } from './spawn'
-
-import { Repository } from '../../models/repository'
 import { IRepository } from '../../database'
 
 /**
@@ -65,7 +63,7 @@ export async function getBlobContents(
  *                     returned may always be less than this number.
  */
 export async function getPartialBlobContents(
-  repository: Repository,
+  repository: IRepository,
   commitish: string,
   path: string,
   length: number

@@ -5,14 +5,14 @@ import { FileChange } from '../../models/status'
 import { Octicon, OcticonSymbol } from '../octicons'
 import { RichText } from '../lib/rich-text'
 import { IGitHubUser } from '../../lib/databases'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Commit } from '../../models/commit'
 import { getAvatarUsersForCommit, IAvatarUser } from '../../models/avatar'
 import { AvatarStack } from '../lib/avatar-stack'
 import { CommitAttribution } from '../lib/commit-attribution'
 
 interface ICommitSummaryProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly commit: Commit
   readonly files: ReadonlyArray<FileChange>
   readonly emoji: Map<string, string>

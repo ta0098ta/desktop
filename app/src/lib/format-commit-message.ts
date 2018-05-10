@@ -1,5 +1,5 @@
 import { ITrailer, mergeTrailers } from './git/interpret-trailers'
-import { Repository } from '../models/repository'
+import { IRepository } from '../database'
 
 /**
  * Formats a summary and a description into a git-friendly
@@ -15,7 +15,7 @@ import { Repository } from '../models/repository'
  * See https://git-scm.com/docs/git-commit#_discussion
  */
 export async function formatCommitMessage(
-  repository: Repository,
+  repository: IRepository,
   summary: string,
   description: string | null,
   trailers?: ReadonlyArray<ITrailer>

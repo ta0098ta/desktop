@@ -1,8 +1,6 @@
 import { Account } from '../models/account'
 import { CommitIdentity } from '../models/commit-identity'
 import { IDiff } from '../models/diff'
-import { Repository } from '../models/repository'
-
 import { Branch, IAheadBehind } from '../models/branch'
 import { Tip } from '../models/tip'
 import { Commit } from '../models/commit'
@@ -55,7 +53,7 @@ export enum ImageDiffType {
 export type PossibleSelections =
   | {
       type: SelectionType.Repository
-      repository: Repository
+      repository: IRepository
       state: IRepositoryState
     }
   | {
@@ -63,7 +61,7 @@ export type PossibleSelections =
       repository: CloningRepository
       progress: ICloneProgress
     }
-  | { type: SelectionType.MissingRepository; repository: Repository }
+  | { type: SelectionType.MissingRepository; repository: IRepository }
 
 /** All of the shared app state. */
 export interface IAppState {
@@ -212,22 +210,22 @@ export enum PopupType {
 }
 
 export type Popup =
-  | { type: PopupType.RenameBranch; repository: Repository; branch: Branch }
+  | { type: PopupType.RenameBranch; repository: IRepository; branch: Branch }
   | {
       type: PopupType.DeleteBranch
-      repository: Repository
+      repository: IRepository
       branch: Branch
       existsOnRemote: boolean
     }
   | {
       type: PopupType.ConfirmDiscardChanges
-      repository: Repository
+      repository: IRepository
       files: ReadonlyArray<WorkingDirectoryFileChange>
       showDiscardChangesSetting?: boolean
     }
   | { type: PopupType.Preferences; initialSelectedTab?: PreferencesTab }
-  | { type: PopupType.MergeBranch; repository: Repository }
-  | { type: PopupType.RepositorySettings; repository: Repository }
+  | { type: PopupType.MergeBranch; repository: IRepository }
+  | { type: PopupType.RepositorySettings; repository: IRepository }
   | { type: PopupType.AddRepository; path?: string }
   | { type: PopupType.CreateRepository; path?: string }
   | {
@@ -236,24 +234,24 @@ export type Popup =
     }
   | {
       type: PopupType.CreateBranch
-      repository: Repository
+      repository: IRepository
       initialName?: string
     }
   | { type: PopupType.SignIn }
   | { type: PopupType.About }
   | { type: PopupType.InstallGit; path: string }
-  | { type: PopupType.PublishRepository; repository: Repository }
+  | { type: PopupType.PublishRepository; repository: IRepository }
   | { type: PopupType.Acknowledgements }
   | {
       type: PopupType.UntrustedCertificate
       certificate: Electron.Certificate
       url: string
     }
-  | { type: PopupType.RemoveRepository; repository: Repository }
+  | { type: PopupType.RemoveRepository; repository: IRepository }
   | { type: PopupType.TermsAndConditions }
   | {
       type: PopupType.PushBranchCommits
-      repository: Repository
+      repository: IRepository
       branch: Branch
       unPushedCommits?: number
     }
@@ -270,16 +268,16 @@ export type Popup =
       openPreferences?: boolean
     }
   | { type: PopupType.OpenShellFailed; message: string }
-  | { type: PopupType.InitializeLFS; repositories: ReadonlyArray<Repository> }
+  | { type: PopupType.InitializeLFS; repositories: ReadonlyArray<IRepository> }
   | { type: PopupType.LFSAttributeMismatch }
   | {
       type: PopupType.UpstreamAlreadyExists
-      repository: Repository
+      repository: IRepository
       existingRemote: IRemote
     }
   | {
       type: PopupType.DeletePullRequest
-      repository: Repository
+      repository: IRepository
       branch: Branch
       pullRequest: PullRequest
     }

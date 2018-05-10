@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Repository as Repo } from '../models/repository'
+import { IRepository as Repo } from '../models/repository'
 import { Commit } from '../models/commit'
 import { TipState } from '../models/tip'
 import { UiView } from './ui-view'

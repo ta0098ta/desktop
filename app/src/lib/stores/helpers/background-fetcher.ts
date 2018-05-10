@@ -1,8 +1,7 @@
-import { Repository } from '../../../models/repository'
 import { Account } from '../../../models/account'
-import { GitHubRepository } from '../../../models/github-repository'
 import { API } from '../../api'
 import { fatalError } from '../../fatal-error'
+import { IRepository, IRepository } from '../../../database'
 
 /**
  * A default interval at which to automatically fetch repositories, if the
@@ -24,10 +23,10 @@ const SkewUpperBound = 30 * 1000
 
 /** The class which handles doing background fetches of the repository. */
 export class BackgroundFetcher {
-  private readonly repository: Repository
+  private readonly repository: IRepository
   private readonly account: Account
-  private readonly fetch: (repository: Repository) => Promise<void>
-  private readonly shouldPerformFetch: (repository: Repository) => boolean
+  private readonly fetch: (repository: IRepository) => Promise<void>
+  private readonly shouldPerformFetch: (repository: IRepository) => boolean
 
   /** The handle for our setTimeout invocation. */
   private timeoutHandle: number | null = null
@@ -36,10 +35,10 @@ export class BackgroundFetcher {
   private stopped = false
 
   public constructor(
-    repository: Repository,
+    repository: IRepository,
     account: Account,
-    fetch: (repository: Repository) => Promise<void>,
-    shouldPerformFetch: (repository: Repository) => boolean
+    fetch: (repository: IRepository) => Promise<void>,
+    shouldPerformFetch: (repository: IRepository) => boolean
   ) {
     this.repository = repository
     this.account = account
@@ -54,8 +53,8 @@ export class BackgroundFetcher {
       return
     }
 
-    const gitHubRepository = this.repository.gitHubRepository
-    if (!gitHubRepository) {
+    const gitHubRepository = this.repository.ghRepository
+    if (gitHubRepository == null) {
       return
     }
 
@@ -85,7 +84,7 @@ export class BackgroundFetcher {
 
   /** Perform a fetch and schedule the next one. */
   private async performAndScheduleFetch(
-    repository: GitHubRepository
+    ghRepository: IRepository
   ): Promise<void> {
     if (this.stopped) {
       return
@@ -104,28 +103,26 @@ export class BackgroundFetcher {
       return
     }
 
-    const interval = await this.getFetchInterval(repository)
+    const interval = await this.getFetchInterval(ghRepository)
     if (this.stopped) {
       return
     }
 
     this.timeoutHandle = window.setTimeout(
-      () => this.performAndScheduleFetch(repository),
+      () => this.performAndScheduleFetch(ghRepository),
       interval
     )
   }
 
   /** Get the allowed fetch interval from the server. */
-  private async getFetchInterval(
-    repository: GitHubRepository
-  ): Promise<number> {
+  private async getFetchInterval(ghRepository: IRepository): Promise<number> {
     const api = API.fromAccount(this.account)
 
     let interval = DefaultFetchInterval
     try {
       const pollInterval = await api.getFetchPollInterval(
-        repository.owner.login,
-        repository.name
+        ghRepository.owner.login,
+        ghRepository.name
       )
       if (pollInterval) {
         interval = Math.max(pollInterval, MinimumInterval)

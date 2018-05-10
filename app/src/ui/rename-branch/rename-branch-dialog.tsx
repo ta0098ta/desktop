@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { Dispatcher } from '../../lib/dispatcher'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Branch } from '../../models/branch'
 import { sanitizedBranchName } from '../../lib/sanitize-branch'
 import { TextBox } from '../lib/text-box'
@@ -16,7 +16,7 @@ import {
 
 interface IRenameBranchProps {
   readonly dispatcher: Dispatcher
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly branch: Branch
 }
 

@@ -1,5 +1,5 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /** Install the global LFS filters. */
 export async function installGlobalLFSFilters(force: boolean): Promise<void> {
@@ -13,7 +13,7 @@ export async function installGlobalLFSFilters(force: boolean): Promise<void> {
 
 /** Install LFS hooks in the repository. */
 export async function installLFSHooks(
-  repository: Repository,
+  repository: IRepository,
   force: boolean
 ): Promise<void> {
   const args = ['lfs', 'install']
@@ -25,7 +25,7 @@ export async function installLFSHooks(
 }
 
 /** Is the repository configured to track any paths with LFS? */
-export async function isUsingLFS(repository: Repository): Promise<boolean> {
+export async function isUsingLFS(repository: IRepository): Promise<boolean> {
   const env = {
     GIT_LFS_TRACK_NO_INSTALL_HOOKS: '1',
   }

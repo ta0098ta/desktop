@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { Dispatcher } from '../../lib/dispatcher'
 
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Branch } from '../../models/branch'
 import { PullRequest } from '../../models/pull-request'
 
@@ -13,7 +13,7 @@ import { LinkButton } from '../lib/link-button'
 
 interface IDeleteBranchProps {
   readonly dispatcher: Dispatcher
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly branch: Branch
   readonly pullRequest: PullRequest
   readonly onDismissed: () => void

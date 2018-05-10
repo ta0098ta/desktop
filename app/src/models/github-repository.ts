@@ -1,7 +1,7 @@
 import { Owner } from './owner'
 
 /** A GitHub repository. */
-export class GitHubRepository {
+export class IGHRepository {
   /**
    * The ID of the repository in the app's local database. This is no relation
    * to the API ID.
@@ -16,7 +16,7 @@ export class GitHubRepository {
   public readonly htmlURL: string | null
   public readonly defaultBranch: string | null
   public readonly cloneURL: string | null
-  public readonly parent: GitHubRepository | null
+  public readonly parent: IGHRepository | null
 
   public constructor(
     name: string,
@@ -26,7 +26,7 @@ export class GitHubRepository {
     htmlURL: string | null = null,
     defaultBranch: string | null = 'master',
     cloneURL: string | null = null,
-    parent: GitHubRepository | null = null
+    parent: IGHRepository | null = null
   ) {
     this.name = name
     this.owner = owner

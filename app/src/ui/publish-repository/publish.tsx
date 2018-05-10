@@ -5,7 +5,7 @@ import {
 } from './publish-repository'
 import { Dispatcher } from '../../lib/dispatcher'
 import { Account } from '../../models/account'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { ButtonGroup } from '../lib/button-group'
 import { Button } from '../lib/button'
 import { Dialog, DialogFooter, DialogContent, DialogError } from '../dialog'
@@ -24,7 +24,7 @@ interface IPublishProps {
   readonly dispatcher: Dispatcher
 
   /** The repository being published. */
-  readonly repository: Repository
+  readonly repository: IRepository
 
   /** The signed in accounts. */
   readonly accounts: ReadonlyArray<Account>

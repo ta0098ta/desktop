@@ -36,7 +36,7 @@ import {
   highlightContents,
 } from './syntax-highlighting'
 import { relativeChanges } from './changed-range'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 
 /** The longest line for which we'd try to calculate a line diff. */
 const MaxIntraLineDiffStringLength = 4096
@@ -74,7 +74,7 @@ function highlightParametersEqual(
 }
 
 interface ITextDiffProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly file: ChangedFile
   readonly readOnly: boolean
   readonly onIncludeChanged?: (diffSelection: DiffSelection) => void

@@ -2,23 +2,23 @@ import * as React from 'react'
 import { Dialog, DialogContent, DialogFooter } from '../dialog'
 import { ButtonGroup } from '../lib/button-group'
 import { Button } from '../lib/button'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { IRemote } from '../../models/remote'
 import { Ref } from '../lib/ref'
 import { forceUnwrap } from '../../lib/fatal-error'
 import { UpstreamRemoteName } from '../../lib/stores'
 
 interface IUpstreamAlreadyExistsProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly existingRemote: IRemote
 
   readonly onDismissed: () => void
 
   /** Called when the user chooses to update the existing remote. */
-  readonly onUpdate: (repository: Repository) => void
+  readonly onUpdate: (repository: IRepository) => void
 
   /** Called when the user chooses to ignore the warning. */
-  readonly onIgnore: (repository: Repository) => void
+  readonly onIgnore: (repository: IRepository) => void
 }
 
 /**

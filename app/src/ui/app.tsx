@@ -23,10 +23,7 @@ import { ILaunchStats } from '../lib/stats'
 import { getVersion, getName } from './lib/app-proxy'
 import { getOS } from '../lib/get-os'
 import { validatedRepositoryPath } from '../lib/stores/helpers/validated-repository-path'
-
 import { MenuEvent } from '../main-process/menu'
-
-import { Repository } from '../models/repository'
 import { Branch } from '../models/branch'
 import { PreferencesTab } from '../models/preferences'
 import { findItemByAccessKey, itemIsSelectable } from '../models/app-menu'
@@ -729,7 +726,7 @@ export class App extends React.Component<IAppProps, IAppState> {
   }
 
   private removeRepository = (
-    repository: Repository | CloningRepository | null
+    repository: IRepository | CloningRepository | null
   ) => {
     if (!repository) {
       return
@@ -750,11 +747,11 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
-  private onConfirmRepoRemoval = (repository: Repository) => {
+  private onConfirmRepoRemoval = (repository: IRepository) => {
     this.props.dispatcher.removeRepositories([repository])
   }
 
-  private getRepository(): Repository | CloningRepository | null {
+  private getRepository(): IRepository | CloningRepository | null {
     const state = this.state.selectedState
     if (state == null) {
       return null
@@ -1239,11 +1236,11 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
-  private onUpdateExistingUpstreamRemote = (repository: Repository) => {
+  private onUpdateExistingUpstreamRemote = (repository: IRepository) => {
     this.props.dispatcher.updateExistingUpstreamRemote(repository)
   }
 
-  private onIgnoreExistingUpstreamRemote = (repository: Repository) => {
+  private onIgnoreExistingUpstreamRemote = (repository: IRepository) => {
     this.props.dispatcher.ignoreExistingUpstreamRemote(repository)
   }
 
@@ -1252,7 +1249,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     this.onPopupDismissed()
   }
 
-  private initializeLFS = (repositories: ReadonlyArray<Repository>) => {
+  private initializeLFS = (repositories: ReadonlyArray<IRepository>) => {
     this.props.dispatcher.installLFSHooks(repositories)
     this.onPopupDismissed()
   }
@@ -1377,8 +1374,8 @@ export class App extends React.Component<IAppProps, IAppState> {
     )
   }
 
-  private openInShell = (repository: Repository | CloningRepository) => {
-    if (!(repository instanceof Repository)) {
+  private openInShell = (repository: IRepository | CloningRepository) => {
+    if (!(repository instanceof IRepository)) {
       return
     }
 
@@ -1390,17 +1387,17 @@ export class App extends React.Component<IAppProps, IAppState> {
   }
 
   private openInExternalEditor = (
-    repository: Repository | CloningRepository
+    repository: IRepository | CloningRepository
   ) => {
-    if (!(repository instanceof Repository)) {
+    if (!(repository instanceof IRepository)) {
       return
     }
 
     this.props.dispatcher.openInExternalEditor(repository.path)
   }
 
-  private showRepository = (repository: Repository | CloningRepository) => {
-    if (!(repository instanceof Repository)) {
+  private showRepository = (repository: IRepository | CloningRepository) => {
+    if (!(repository instanceof IRepository)) {
       return
     }
 
@@ -1533,7 +1530,7 @@ export class App extends React.Component<IAppProps, IAppState> {
   }
 
   private openCreatePullRequestInBrowser = (
-    repository: Repository,
+    repository: IRepository,
     branch: Branch
   ) => {
     this.props.dispatcher.openCreatePullRequestInBrowser(repository, branch)
@@ -1698,7 +1695,9 @@ export class App extends React.Component<IAppProps, IAppState> {
     this.props.dispatcher.setRepositoryFilterText(text)
   }
 
-  private onSelectionChanged = (repository: Repository | CloningRepository) => {
+  private onSelectionChanged = (
+    repository: IRepository | CloningRepository
+  ) => {
     this.props.dispatcher.selectRepository(repository)
     this.props.dispatcher.closeFoldout(FoldoutType.Repository)
   }

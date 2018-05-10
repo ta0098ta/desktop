@@ -13,7 +13,7 @@ import {
 } from '../helpers/repositories'
 import { GitStore } from '../../src/lib/stores'
 import { AppFileStatus } from '../../src/models/status'
-import { Repository } from '../../src/models/repository'
+import { IRepository } from '../../src/models/repository'
 import { Commit } from '../../src/models/commit'
 import { TipState, IValidBranch } from '../../src/models/tip'
 import { getCommit, getStatus } from '../../src/lib/git'
@@ -85,7 +85,7 @@ describe('GitStore', () => {
   })
 
   describe('undo first commit', () => {
-    let repo: Repository | null = null
+    let repo: IRepository | null = null
     let firstCommit: Commit | null = null
 
     const commitMessage = 'added file'
@@ -193,7 +193,7 @@ describe('GitStore', () => {
   describe('repository with HEAD file', () => {
     it('can discard modified change cleanly', async () => {
       const path = await setupFixtureRepository('repository-with-HEAD-file')
-      const repo = new Repository(path, 1, null, false)
+      const repo = new IRepository(path, 1, null, false)
       const gitStore = new GitStore(repo, shell)
 
       const file = 'README.md'

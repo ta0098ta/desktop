@@ -1,6 +1,4 @@
-import { Repository } from '../../models/repository'
 import { Account } from '../../models/account'
-import { GitHubRepository } from '../../models/github-repository'
 import { API, getAccountForEndpoint, getDotComAPIEndpoint } from '../api'
 import {
   GitHubUserDatabase,
@@ -11,6 +9,7 @@ import { getAvatarWithEnterpriseFallback } from '../gravatar'
 import { fatalError } from '../fatal-error'
 import { compare } from '../compare'
 import { BaseStore } from './base-store'
+import { IRepository, getEndpoint } from '../../database'
 
 /**
  * The store for GitHub users. This is used to match commit authors to GitHub
@@ -47,11 +46,12 @@ export class GitHubUserStore extends BaseStore {
 
   /** Get the map of users for the repository. */
   public getUsersForRepository(
-    repository: Repository
+    repository: IRepository
   ): Map<string, IGitHubUser> | null {
-    const endpoint = repository.gitHubRepository
-      ? repository.gitHubRepository.endpoint
-      : getDotComAPIEndpoint()
+    const endpoint =
+      repository.ghRepository != null
+        ? getEndpoint(repository.ghRepository)
+        : getDotComAPIEndpoint()
     return this.getUsersForEndpoint(endpoint)
   }
 
@@ -109,7 +109,7 @@ export class GitHubUserStore extends BaseStore {
 
   /** Update the mentionable users for the repository. */
   public async updateMentionables(
-    repository: GitHubRepository,
+    repository: IRepository,
     account: Account
   ): Promise<void> {
     const api = API.fromAccount(account)
@@ -176,7 +176,7 @@ export class GitHubUserStore extends BaseStore {
   /** Not to be called externally. See `Dispatcher`. */
   public async _loadAndCacheUser(
     accounts: ReadonlyArray<Account>,
-    repository: Repository,
+    repository: IRepository,
     sha: string | null,
     email: string
   ) {
@@ -240,7 +240,7 @@ export class GitHubUserStore extends BaseStore {
 
   private async findUserWithAPI(
     account: Account,
-    repository: GitHubRepository,
+    repository: IRepository,
     sha: string | null,
     email: string
   ): Promise<IGitHubUser | null> {
@@ -338,10 +338,7 @@ export class GitHubUserStore extends BaseStore {
    * Note that both the user and the repository *must* have already been cached
    * before calling this method. Otherwise it will throw.
    */
-  private async storeMentionable(
-    user: IGitHubUser,
-    repository: GitHubRepository
-  ) {
+  private async storeMentionable(user: IGitHubUser, repository: IRepository) {
     const userID = user.id
     if (!userID) {
       fatalError(
@@ -382,7 +379,7 @@ export class GitHubUserStore extends BaseStore {
    */
   private async pruneRemovedMentionables(
     users: ReadonlyArray<IGitHubUser>,
-    repository: GitHubRepository
+    repository: IRepository
   ) {
     const repositoryID = repository.dbID
     if (!repositoryID) {
@@ -425,7 +422,7 @@ export class GitHubUserStore extends BaseStore {
 
   /** Get the mentionable users in the repository. */
   public async getMentionableUsers(
-    repository: GitHubRepository
+    repository: IRepository
   ): Promise<ReadonlyArray<IGitHubUser>> {
     const repositoryID = repository.dbID
     if (!repositoryID) {
@@ -471,7 +468,7 @@ export class GitHubUserStore extends BaseStore {
    * @param maxHits The maximum number of hits to return.
    */
   public async getMentionableUsersMatching(
-    repository: GitHubRepository,
+    repository: IRepository,
     text: string,
     maxHits: number = 100
   ): Promise<ReadonlyArray<IGitHubUser>> {

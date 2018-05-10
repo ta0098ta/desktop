@@ -2,7 +2,7 @@
 
 import { expect } from 'chai'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import {
   getRecentBranches,
   createBranch,
@@ -15,7 +15,7 @@ import { Commit } from '../../../src/models/commit'
 import { CommitIdentity } from '../../../src/models/commit-identity'
 
 async function createAndCheckout(
-  repository: Repository,
+  repository: IRepository,
   name: string
 ): Promise<void> {
   const branch = await createBranch(repository, name)
@@ -26,11 +26,11 @@ async function createAndCheckout(
 }
 
 describe('git/reflog', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(() => {
     const testRepoPath = setupFixtureRepository('test-repo')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = new IRepository(testRepoPath, -1, null, false)
   })
 
   describe('getRecentBranches', () => {

@@ -4,14 +4,14 @@ import { Branch } from '../../models/branch'
 import { ButtonGroup } from '../lib/button-group'
 import { Button } from '../lib/button'
 import { Dialog, DialogContent, DialogFooter } from '../dialog'
-import { Repository } from '../../models/repository'
 import { Ref } from '../lib/ref'
+import { IRepository } from '../../database'
 
 interface IPushBranchCommitsProps {
   readonly dispatcher: Dispatcher
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly branch: Branch
-  readonly onConfirm: (repository: Repository, branch: Branch) => void
+  readonly onConfirm: (repository: IRepository, branch: Branch) => void
   readonly onDismissed: () => void
 
   /**

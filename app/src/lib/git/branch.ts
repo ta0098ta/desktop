@@ -1,8 +1,8 @@
 import { git, gitNetworkArguments } from './core'
 import { getBranches } from './for-each-ref'
-import { Repository } from '../../models/repository'
 import { Branch, BranchType } from '../../models/branch'
 import { IGitAccount, envForAuthentication } from './authentication'
+import { IRepository } from '../../database'
 
 /**
  * Create a new branch from the given start point.
@@ -14,7 +14,7 @@ import { IGitAccount, envForAuthentication } from './authentication'
  *                     off of the current state of HEAD
  */
 export async function createBranch(
-  repository: Repository,
+  repository: IRepository,
   name: string,
   startPoint?: string
 ): Promise<Branch | null> {
@@ -34,7 +34,7 @@ export async function createBranch(
 
 /** Rename the given branch to a new name. */
 export async function renameBranch(
-  repository: Repository,
+  repository: IRepository,
   branch: Branch,
   newName: string
 ): Promise<void> {
@@ -50,7 +50,7 @@ export async function renameBranch(
  * deleted. Silently deletes local branch if remote one is already deleted.
  */
 export async function deleteBranch(
-  repository: Repository,
+  repository: IRepository,
   branch: Branch,
   account: IGitAccount | null,
   includeRemote: boolean
@@ -95,7 +95,7 @@ export async function deleteBranch(
 }
 
 async function checkIfBranchExistsOnRemote(
-  repository: Repository,
+  repository: IRepository,
   branch: Branch,
   account: IGitAccount | null,
   remote: string

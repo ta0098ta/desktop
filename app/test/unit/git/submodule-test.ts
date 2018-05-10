@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import * as path from 'path'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import {
   listSubmodules,
   resetSubmodulePaths,
@@ -13,7 +13,7 @@ describe('git/submodule', () => {
   describe('listSubmodules', () => {
     it('returns the submodule entry', async () => {
       const testRepoPath = setupFixtureRepository('submodule-basic-setup')
-      const repository = new Repository(testRepoPath, -1, null, false)
+      const repository = new IRepository(testRepoPath, -1, null, false)
       const result = await listSubmodules(repository)
       expect(result.length).to.equal(1)
       expect(result[0].sha).to.equal('c59617b65080863c4ca72c1f191fa1b423b92223')
@@ -23,10 +23,10 @@ describe('git/submodule', () => {
 
     it('returns the expected tag', async () => {
       const testRepoPath = setupFixtureRepository('submodule-basic-setup')
-      const repository = new Repository(testRepoPath, -1, null, false)
+      const repository = new IRepository(testRepoPath, -1, null, false)
 
       const submodulePath = path.join(testRepoPath, 'foo', 'submodule')
-      const submoduleRepository = new Repository(submodulePath, -1, null, false)
+      const submoduleRepository = new IRepository(submodulePath, -1, null, false)
 
       const branches = await getBranches(
         submoduleRepository,
@@ -50,10 +50,10 @@ describe('git/submodule', () => {
   describe('resetSubmodulePaths', () => {
     it('update submodule to original commit', async () => {
       const testRepoPath = setupFixtureRepository('submodule-basic-setup')
-      const repository = new Repository(testRepoPath, -1, null, false)
+      const repository = new IRepository(testRepoPath, -1, null, false)
 
       const submodulePath = path.join(testRepoPath, 'foo', 'submodule')
-      const submoduleRepository = new Repository(submodulePath, -1, null, false)
+      const submoduleRepository = new IRepository(submodulePath, -1, null, false)
 
       const branches = await getBranches(
         submoduleRepository,

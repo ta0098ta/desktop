@@ -1,5 +1,5 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /**
  * Possible statuses of an entry in Git, see the git diff-index
@@ -77,7 +77,7 @@ const NullTreeSHA = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
  * @param repository The repository for which to retrieve the index changes.
  */
 export async function getIndexChanges(
-  repository: Repository
+  repository: IRepository
 ): Promise<Map<string, NoRenameIndexStatus>> {
   const args = ['diff-index', '--cached', '--name-status', '--no-renames', '-z']
 

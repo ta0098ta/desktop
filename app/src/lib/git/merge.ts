@@ -1,16 +1,16 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /** Merge the named branch into the current branch. */
 export async function merge(
-  repository: Repository,
+  repository: IRepository,
   branch: string
 ): Promise<void> {
   await git(['merge', branch], repository.path, 'merge')
 }
 
 export async function getMergeBase(
-  repository: Repository,
+  repository: IRepository,
   firstRef: string,
   secondRef: string
 ): Promise<string> {

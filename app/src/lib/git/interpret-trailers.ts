@@ -1,5 +1,4 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { getConfigValue } from './config'
 import { IRepository } from '../../database'
 
@@ -151,7 +150,7 @@ export async function parseTrailers(
  *                      repository.
  */
 export async function mergeTrailers(
-  repository: Repository,
+  repository: IRepository,
   commitMessage: string,
   trailers: ReadonlyArray<ITrailer>,
   unfold: boolean = false

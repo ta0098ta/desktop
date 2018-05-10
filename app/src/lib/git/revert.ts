@@ -1,10 +1,10 @@
 import { git, gitNetworkArguments, IGitExecutionOptions } from './core'
-import { Repository } from '../../models/repository'
 import { Commit } from '../../models/commit'
 import { envForAuthentication, IGitAccount } from './authentication'
 import { IRevertProgress } from '../app-state'
 import { executionOptionsWithProgress } from '../progress/from-process'
 import { RevertProgressParser } from '../progress/revert'
+import { IRepository } from '../../database'
 
 /**
  * Creates a new commit that reverts the changes of a previous commit
@@ -15,7 +15,7 @@ import { RevertProgressParser } from '../progress/revert'
  *
  */
 export async function revertCommit(
-  repository: Repository,
+  repository: IRepository,
   commit: Commit,
   account: IGitAccount | null,
   progressCallback?: (progress: IRevertProgress) => void

@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { LinkButton } from './link-button'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Tokenizer, TokenType } from '../../lib/text-token-parser'
 import { assertNever } from '../../lib/fatal-error'
 
@@ -23,7 +23,7 @@ interface IRichTextProps {
    * If not specified, or the repository is a non-GitHub repository,
    * no link highlighting is performed.
    */
-  readonly repository?: Repository
+  readonly repository?: IRepository
 }
 
 /**

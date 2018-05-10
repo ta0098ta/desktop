@@ -4,7 +4,6 @@ import {
   IGitExecutionOptions,
   gitNetworkArguments,
 } from './core'
-import { Repository } from '../../models/repository'
 import { PullProgressParser, executionOptionsWithProgress } from '../progress'
 import { IPullProgress } from '../app-state'
 import {
@@ -12,6 +11,7 @@ import {
   envForAuthentication,
   AuthenticationErrors,
 } from './authentication'
+import { IRepository } from '../../database'
 
 /**
  * Pull from the specified remote.
@@ -27,7 +27,7 @@ import {
  *                           'git pull'.
  */
 export async function pull(
-  repository: Repository,
+  repository: IRepository,
   account: IGitAccount | null,
   remote: string,
   progressCallback?: (progress: IPullProgress) => void

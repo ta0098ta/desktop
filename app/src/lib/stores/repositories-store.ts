@@ -4,14 +4,11 @@ import {
   IDatabaseGitHubRepository,
 } from '../databases/repositories-database'
 import { Owner } from '../../models/owner'
-import { GitHubRepository } from '../../models/github-repository'
-import { Repository } from '../../models/repository'
 import { IRepositoryAPIResult } from '../api'
 import { BaseStore } from './base-store'
 import {
-  IRepository,
   GHDatabase,
-  IGHRepository,
+  IRepository,
   Collections,
   toRepositoryModel,
 } from '../../database'
@@ -73,7 +70,7 @@ export class RepositoriesStore extends BaseStore {
     repository: IRepository,
     endpoint: string,
     apiResult: IRepositoryAPIResult
-  ): Promise<IGHRepository> {
+  ): Promise<IRepository> {
     const collection = this.ghDb.getCollection(Collections.Repository)
     const document = collection.findOne({
       name: repository.name,
@@ -115,7 +112,7 @@ export class RepositoriesStore extends BaseStore {
   }
 
   public async addGHRepository(
-    repository: Repository,
+    repository: IRepository,
     endpoint: string,
     apiResult: IRepositoryAPIResult
   ) {
@@ -137,8 +134,8 @@ export class RepositoriesStore extends BaseStore {
     repository: IRepository,
     apiResult: IRepositoryAPIResult,
     endpoint?: string
-  ): IGHRepository {
-    const ghRepo: IGHRepository = {
+  ): IRepository {
+    const ghRepo: IRepository = {
       kind: 'gh-repository',
       name: apiResult.name,
       defaultBranch: apiResult.default_branch,
@@ -165,19 +162,19 @@ export class RepositoriesStore extends BaseStore {
 
   private async buildGitHubRepository(
     dbRepo: IDatabaseGitHubRepository
-  ): Promise<GitHubRepository> {
+  ): Promise<IRepository> {
     const owner = await this.db.owners.get(dbRepo.ownerID)
 
     if (owner == null) {
       throw new Error(`Couldn't find the owner for ${dbRepo.name}`)
     }
 
-    let parent: GitHubRepository | null = null
+    let parent: IRepository | null = null
     if (dbRepo.parentID) {
       parent = await this.findGitHubRepositoryByID(dbRepo.parentID)
     }
 
-    return new GitHubRepository(
+    return new IGHRepository(
       dbRepo.name,
       new Owner(owner.login, owner.endpoint, owner.id!),
       dbRepo.id!,
@@ -192,7 +189,7 @@ export class RepositoriesStore extends BaseStore {
   /** Find a GitHub repository by its DB ID. */
   public async findGitHubRepositoryByID(
     id: number
-  ): Promise<GitHubRepository | null> {
+  ): Promise<IRepository | null> {
     const gitHubRepository = await this.db.gitHubRepositories.get(id)
     if (!gitHubRepository) {
       return null

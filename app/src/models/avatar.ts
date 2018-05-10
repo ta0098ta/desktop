@@ -4,7 +4,7 @@ import { CommitIdentity } from './commit-identity'
 import { GitAuthor } from './git-author'
 import { generateGravatarUrl } from '../lib/gravatar'
 import { getDotComAPIEndpoint } from '../lib/api'
-import { GitHubRepository } from './github-repository'
+import { IGHRepository } from './github-repository'
 
 /** The minimum properties we need in order to display a user's avatar. */
 export interface IAvatarUser {
@@ -19,7 +19,7 @@ export interface IAvatarUser {
 }
 
 function getFallbackAvatarUrlForAuthor(
-  gitHubRepository: GitHubRepository | null,
+  gitHubRepository: IGHRepository | null,
   author: CommitIdentity | GitAuthor
 ) {
   if (
@@ -35,7 +35,7 @@ function getFallbackAvatarUrlForAuthor(
 }
 
 function getAvatarUserFromAuthor(
-  gitHubRepository: GitHubRepository | null,
+  gitHubRepository: IGHRepository | null,
   gitHubUsers: Map<string, IGitHubUser> | null,
   author: CommitIdentity | GitAuthor
 ) {
@@ -68,7 +68,7 @@ function getAvatarUserFromAuthor(
  * @param commit
  */
 export function getAvatarUsersForCommit(
-  gitHubRepository: GitHubRepository | null,
+  gitHubRepository: IGHRepository | null,
   gitHubUsers: Map<string, IGitHubUser> | null,
   commit: Commit
 ) {

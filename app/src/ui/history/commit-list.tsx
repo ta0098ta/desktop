@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { GitHubRepository } from '../../models/github-repository'
+import { IGHRepository } from '../../models/github-repository'
 import { Commit } from '../../models/commit'
 import { CommitListItem } from './commit-list-item'
 import { List } from '../lib/list'
@@ -9,7 +9,7 @@ const RowHeight = 50
 
 interface ICommitListProps {
   /** The GitHub repository associated with this commit (if found) */
-  readonly gitHubRepository: GitHubRepository | null
+  readonly gitHubRepository: IGHRepository | null
 
   /** The list of commits SHAs to display, in order. */
   readonly commitSHAs: ReadonlyArray<string>

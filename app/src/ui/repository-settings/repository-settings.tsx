@@ -6,7 +6,7 @@ import { assertNever } from '../../lib/fatal-error'
 import { IRemote } from '../../models/remote'
 import { Dispatcher } from '../../lib/dispatcher'
 import { PopupType } from '../../lib/app-state'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Button } from '../lib/button'
 import { ButtonGroup } from '../lib/button-group'
 import { Dialog, DialogError, DialogFooter } from '../dialog'
@@ -15,7 +15,7 @@ import { NoRemote } from './no-remote'
 interface IRepositorySettingsProps {
   readonly dispatcher: Dispatcher
   readonly remote: IRemote | null
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly onDismissed: () => void
 }
 

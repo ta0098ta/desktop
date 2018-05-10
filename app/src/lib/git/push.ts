@@ -4,7 +4,6 @@ import {
   gitNetworkArguments,
   GitError,
 } from './core'
-import { Repository } from '../../models/repository'
 import { PushProgressParser, executionOptionsWithProgress } from '../progress'
 import { IPushProgress } from '../app-state'
 import {
@@ -12,6 +11,7 @@ import {
   envForAuthentication,
   AuthenticationErrors,
 } from './authentication'
+import { IRepository } from '../../database'
 
 /**
  * Push from the remote to the branch, optionally setting the upstream.
@@ -36,7 +36,7 @@ import {
  *                           'git push'.
  */
 export async function push(
-  repository: Repository,
+  repository: IRepository,
   account: IGitAccount | null,
   remote: string,
   localBranch: string,

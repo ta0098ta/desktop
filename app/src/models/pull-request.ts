@@ -1,5 +1,5 @@
 import { APIRefState } from '../lib/api'
-import { GitHubRepository } from './github-repository'
+import { IGHRepository } from './github-repository'
 
 export class PullRequestRef {
   /** The name of the ref. */
@@ -12,12 +12,12 @@ export class PullRequestRef {
    * The GitHub repository in which this ref lives. It could be null if the
    * repository was deleted after the PR was opened.
    */
-  public readonly gitHubRepository: GitHubRepository | null
+  public readonly gitHubRepository: IGHRepository | null
 
   public constructor(
     ref: string,
     sha: string,
-    gitHubRepository: GitHubRepository | null
+    gitHubRepository: IGHRepository | null
   ) {
     this.ref = ref
     this.sha = sha

@@ -2,7 +2,7 @@ import { Commit } from '../../models/commit'
 import * as React from 'react'
 import { CommitIdentity } from '../../models/commit-identity'
 import { GitAuthor } from '../../models/git-author'
-import { GitHubRepository } from '../../models/github-repository'
+import { IGHRepository } from '../../models/github-repository'
 
 interface ICommitAttributionProps {
   /**
@@ -17,7 +17,7 @@ interface ICommitAttributionProps {
    * not associated with a GitHub account. Used to determine
    * whether a commit is a special GitHub web flow user.
    */
-  readonly gitHubRepository: GitHubRepository | null
+  readonly gitHubRepository: IGHRepository | null
 }
 
 /**

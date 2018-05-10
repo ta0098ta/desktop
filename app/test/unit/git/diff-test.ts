@@ -5,7 +5,7 @@ import { expect } from 'chai'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import {
   AppFileStatus,
   WorkingDirectoryFileChange,
@@ -32,7 +32,7 @@ import {
 import { GitProcess } from 'dugite'
 
 async function getTextDiff(
-  repo: Repository,
+  repo: IRepository,
   file: WorkingDirectoryFileChange
 ): Promise<ITextDiff> {
   const diff = await getWorkingDirectoryDiff(repo, file)
@@ -41,11 +41,11 @@ async function getTextDiff(
 }
 
 describe('git/diff', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(() => {
     const testRepoPath = setupFixtureRepository('repo-with-image-changes')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = new IRepository(testRepoPath, -1, null, false)
   })
 
   describe('getWorkingDirectoryImage', () => {
@@ -136,7 +136,7 @@ describe('git/diff', () => {
 
     it('changes for text are not set', async () => {
       const testRepoPath = setupFixtureRepository('repo-with-changes')
-      repository = new Repository(testRepoPath, -1, null, false)
+      repository = new IRepository(testRepoPath, -1, null, false)
 
       const diffSelection = DiffSelection.fromInitialSelection(
         DiffSelectionType.All
@@ -155,7 +155,7 @@ describe('git/diff', () => {
   describe('getWorkingDirectoryDiff', () => {
     beforeEach(() => {
       const testRepoPath = setupFixtureRepository('repo-with-changes')
-      repository = new Repository(testRepoPath, -1, null, false)
+      repository = new IRepository(testRepoPath, -1, null, false)
     })
 
     it('counts lines for new file', async () => {
@@ -245,7 +245,7 @@ describe('git/diff', () => {
 
     it('displays a binary diff for a docx file', async () => {
       const repositoryPath = await setupFixtureRepository('diff-rendering-docx')
-      const repo = new Repository(repositoryPath, -1, null, false)
+      const repo = new IRepository(repositoryPath, -1, null, false)
 
       const status = await getStatus(repo)
       const files = status.workingDirectory.files

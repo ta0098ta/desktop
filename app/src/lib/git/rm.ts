@@ -1,12 +1,12 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /**
  * Remove all files from the index
  *
  * @param repository the repository to update
  */
-export async function unstageAllFiles(repository: Repository): Promise<void> {
+export async function unstageAllFiles(repository: IRepository): Promise<void> {
   await git(
     // these flags are important:
     // --cached to only remove files from the index

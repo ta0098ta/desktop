@@ -1,5 +1,5 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /**
  * Forcefully updates the working directory with information from the index
@@ -19,7 +19,7 @@ import { Repository } from '../../models/repository'
  *                   with information from the index.
  */
 export async function checkoutIndex(
-  repository: Repository,
+  repository: IRepository,
   paths: ReadonlyArray<string>
 ) {
   if (!paths.length) {

@@ -6,7 +6,7 @@ import { encodePathAsUrl } from '../../lib/path'
 import { ImageDiffType } from '../../lib/app-state'
 import { Dispatcher } from '../../lib/dispatcher/dispatcher'
 
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import {
   CommittedFileChange,
   WorkingDirectoryFileChange,
@@ -43,7 +43,7 @@ type ChangedFile = WorkingDirectoryFileChange | CommittedFileChange
 
 /** The props for the Diff component. */
 interface IDiffProps {
-  readonly repository: Repository
+  readonly repository: IRepository
 
   /**
    * Whether the diff is readonly, e.g., displaying a historical diff, or the

@@ -1,4 +1,4 @@
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { CloningRepository } from '../../models/cloning-repository'
 import { getDotComAPIEndpoint } from '../../lib/api'
 import { caseInsensitiveCompare } from '../../lib/compare'
@@ -6,7 +6,7 @@ import { IFilterListGroup, IFilterListItem } from '../lib/filter-list'
 
 export type RepositoryGroupIdentifier = 'github' | 'enterprise' | 'other'
 
-export type Repositoryish = Repository | CloningRepository
+export type Repositoryish = IRepository | CloningRepository
 
 export interface IRepositoryListItem extends IFilterListItem {
   readonly text: string
@@ -21,7 +21,7 @@ export function groupRepositories(
   const grouped = new Map<RepositoryGroupIdentifier, Repositoryish[]>()
   for (const repository of repositories) {
     const gitHubRepository =
-      repository instanceof Repository ? repository.gitHubRepository : null
+      repository instanceof IRepository ? repository.gitHubRepository : null
     let group: RepositoryGroupIdentifier = 'other'
     if (gitHubRepository) {
       if (gitHubRepository.endpoint === getDotComAPIEndpoint()) {
@@ -35,7 +35,7 @@ export function groupRepositories(
 
     let repositories = grouped.get(group)
     if (!repositories) {
-      repositories = new Array<Repository>()
+      repositories = new Array<IRepository>()
       grouped.set(group, repositories)
     }
 

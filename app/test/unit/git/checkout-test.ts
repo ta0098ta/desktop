@@ -5,7 +5,7 @@ import {
   setupFixtureRepository,
 } from '../../helpers/repositories'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import { checkoutBranch, getBranches, createBranch } from '../../../src/lib/git'
 import { TipState, IValidBranch } from '../../../src/models/tip'
 import { GitStore } from '../../../src/lib/stores'
@@ -59,7 +59,7 @@ describe('git/checkout', () => {
 
   it('can checkout a valid branch name in an existing repository', async () => {
     const path = await setupFixtureRepository('repo-with-many-refs')
-    const repository = new Repository(path, -1, null, false)
+    const repository = new IRepository(path, -1, null, false)
 
     const branches = await getBranches(
       repository,
@@ -84,7 +84,7 @@ describe('git/checkout', () => {
 
   it('can checkout a branch when it exists on multiple remotes', async () => {
     const path = await setupFixtureRepository('checkout-test-cases')
-    const repository = new Repository(path, -1, null, false)
+    const repository = new IRepository(path, -1, null, false)
 
     const expectedBranch = 'first'
     const firstRemote = 'first-remote'
@@ -121,7 +121,7 @@ describe('git/checkout', () => {
 
   it('will fail when an existing branch matches the remote branch', async () => {
     const path = await setupFixtureRepository('checkout-test-cases')
-    const repository = new Repository(path, -1, null, false)
+    const repository = new IRepository(path, -1, null, false)
 
     const expectedBranch = 'first'
     const firstRemote = 'first-remote'

@@ -4,7 +4,7 @@ import { getAheadBehind } from '../../lib/git'
 import { Dispatcher } from '../../lib/dispatcher'
 
 import { Branch } from '../../models/branch'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 
 import { Button } from '../lib/button'
 import { ButtonGroup } from '../lib/button-group'
@@ -15,7 +15,7 @@ import { revSymmetricDifference } from '../../lib/git'
 
 interface IMergeProps {
   readonly dispatcher: Dispatcher
-  readonly repository: Repository
+  readonly repository: IRepository
 
   /**
    * See IBranchesState.defaultBranch

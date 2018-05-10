@@ -1,7 +1,7 @@
 import { GitError } from 'dugite'
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { Branch, BranchType, IAheadBehind } from '../../models/branch'
+import { IRepository } from '../../database'
 
 /**
  * Convert two refs into the Git range syntax representing the set of commits
@@ -35,7 +35,7 @@ export function revSymmetricDifference(from: string, to: string) {
 
 /** Calculate the number of commits the range is ahead and behind. */
 export async function getAheadBehind(
-  repository: Repository,
+  repository: IRepository,
   range: string
 ): Promise<IAheadBehind | null> {
   // `--left-right` annotates the list of commits in the range with which side
@@ -73,7 +73,7 @@ export async function getAheadBehind(
 
 /** Calculate the number of commits `branch` is ahead/behind its upstream. */
 export async function getBranchAheadBehind(
-  repository: Repository,
+  repository: IRepository,
   branch: Branch
 ): Promise<IAheadBehind | null> {
   if (branch.type === BranchType.Remote) {

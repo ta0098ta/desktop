@@ -1,5 +1,4 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { Commit } from '../../models/commit'
 import { Branch, BranchType } from '../../models/branch'
 import { CommitIdentity } from '../../models/commit-identity'
@@ -8,12 +7,13 @@ import {
   getTrailerSeparatorCharacters,
   parseRawUnfoldedTrailers,
 } from './interpret-trailers'
+import { IRepository } from '../../database'
 
 const ForksReferencesPrefix = `refs/remotes/${ForkedRemotePrefix}`
 
 /** Get all the branches. */
 export async function getBranches(
-  repository: Repository,
+  repository: IRepository,
   ...prefixes: string[]
 ): Promise<ReadonlyArray<Branch>> {
   const delimiter = '1F'

@@ -1,7 +1,6 @@
 import * as Fs from 'fs'
 import * as Path from 'path'
 import { Disposable } from 'event-kit'
-import { Repository } from '../../models/repository'
 import { WorkingDirectoryFileChange, AppFileStatus } from '../../models/status'
 import {
   Branch,
@@ -335,7 +334,7 @@ export class GitStore extends BaseStore {
 
   private refreshDefaultBranch() {
     let defaultBranchName: string | null = 'master'
-    const gitHubRepository = this.repository.gitHubRepository
+    const gitHubRepository = this.repository.ghRepository
     if (gitHubRepository && gitHubRepository.defaultBranch) {
       defaultBranchName = gitHubRepository.defaultBranch
     }
@@ -462,7 +461,7 @@ export class GitStore extends BaseStore {
   }
 
   private async undoFirstCommit(
-    repository: Repository
+    repository: IRepository
   ): Promise<true | undefined> {
     // What are we doing here?
     // The state of the working directory here is rather important, because we
@@ -513,7 +512,7 @@ export class GitStore extends BaseStore {
     // but if we can't we shouldn't be throwing an error,
     // let's just fall back to the old way of restoring the
     // entire message
-    if (this.repository.gitHubRepository) {
+    if (this.repository.ghRepository) {
       try {
         await this.loadCommitAndCoAuthors(commit)
         this.emitUpdate()
@@ -916,10 +915,11 @@ export class GitStore extends BaseStore {
         : this._defaultRemote
 
     const parent =
-      this.repository.gitHubRepository &&
-      this.repository.gitHubRepository.parent
+      (this.repository.ghRepository && this.repository.ghRepository.parent) ||
+      null
 
-    this._upstream = parent ? findUpstreamRemote(parent, remotes) : null
+    this._upstream =
+      parent !== null ? findUpstreamRemote(parent, remotes) : null
 
     this.emitUpdate()
   }
@@ -1169,7 +1169,7 @@ export class GitStore extends BaseStore {
 
   /** Reverts the commit with the given SHA */
   public async revertCommit(
-    repository: Repository,
+    repository: IRepository,
     commit: Commit,
     account: IGitAccount | null,
     progressCallback?: (fetchProgress: IRevertProgress) => void

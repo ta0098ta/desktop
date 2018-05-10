@@ -1,6 +1,5 @@
 import { git } from './core'
 import { AppFileStatus, CommittedFileChange } from '../../models/status'
-import { Repository } from '../../models/repository'
 import { Commit } from '../../models/commit'
 import { CommitIdentity } from '../../models/commit-identity'
 import {
@@ -142,7 +141,7 @@ export async function getCommits(
 
 /** Get the files that were changed in the given commit. */
 export async function getChangedFiles(
-  repository: Repository,
+  repository: IRepository,
   sha: string
 ): Promise<ReadonlyArray<CommittedFileChange>> {
   // opt-in for rename detection (-M) and copies detection (-C)

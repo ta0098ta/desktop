@@ -1,5 +1,4 @@
 import { PullRequestDatabase } from '../databases'
-import { GitHubRepository } from '../../models/github-repository'
 import { Account } from '../../models/account'
 import { API, IPullRequestAPIResult } from '../api'
 import { fatalError, forceUnwrap } from '../fatal-error'
@@ -10,28 +9,27 @@ import {
   PullRequestStatus,
 } from '../../models/pull-request'
 import { TypedBaseStore } from './base-store'
-import { Repository } from '../../models/repository'
 import { getRemotes, removeRemote } from '../git'
 import { IRemote, ForkedRemotePrefix } from '../../models/remote'
 import {
   getFullName,
-  IRepository,
   getEndpoint,
   IPullRequest,
   IPullRequestStatus,
   GHDatabase,
   Collections,
+  IRepository,
 } from '../../database'
 
 const Decrement = (n: number) => n - 1
 const Increment = (n: number) => n + 1
 
 /** The store for GitHub Pull Requests. */
-export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
+export class PullRequestStore extends TypedBaseStore<IRepository> {
   private readonly pullRequestDatabase: PullRequestDatabase
   private readonly ghDb: GHDatabase
   private readonly repositoryStore: RepositoriesStore
-  private readonly activeFetchCountPerRepository = new Map<number, number>()
+  private readonly activeFetchCountPerRepository = new Map<string, number>()
 
   public constructor(
     db: PullRequestDatabase,
@@ -47,54 +45,53 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
 
   /** Loads all pull requests against the given repository. */
   public async fetchAndCachePullRequests(
-    repository: Repository,
+    repository: IRepository,
     account: Account
   ): Promise<void> {
-    const githubRepo = forceUnwrap(
+    const ghRepo = forceUnwrap(
       'Can only refresh pull requests for GitHub repositories',
-      repository.gitHubRepository
+      repository.ghRepository
     )
     const apiClient = API.fromAccount(account)
 
-    this.updateActiveFetchCount(githubRepo, Increment)
+    this.updateActiveFetchCount(repository, Increment)
 
     try {
       const apiResult = await apiClient.fetchPullRequests(
-        githubRepo.owner.login,
-        githubRepo.name,
+        ghRepo.owner.login,
+        ghRepo.name,
         'open'
       )
 
-      await this.cachePullRequests(apiResult, githubRepo)
+      await this.cachePullRequests(apiResult, repository)
 
-      const prs = await this.fetchPullRequestsFromCache(githubRepo)
+      const prs = await this.fetchPullRequestsFromCache(repository)
 
-      await this.fetchAndCachePullRequestStatus(prs, githubRepo, account)
+      await this.fetchAndCachePullRequestStatus(prs, repository, account)
       await this.pruneForkedRemotes(repository, prs)
 
-      this.emitUpdate(githubRepo)
+      this.emitUpdate(repository)
     } catch (error) {
       log.warn(`Error refreshing pull requests for '${repository.name}'`, error)
       this.emitError(error)
     } finally {
-      this.updateActiveFetchCount(githubRepo, Decrement)
+      this.updateActiveFetchCount(repository, Decrement)
     }
   }
 
   /** Is the store currently fetching the list of open pull requests? */
-  public isFetchingPullRequests(repository: GitHubRepository): boolean {
-    const repoDbId = forceUnwrap(
-      'Cannot fetch PRs for a repository which is not in the database',
-      repository.dbID
-    )
-    const currentCount = this.activeFetchCountPerRepository.get(repoDbId) || 0
+  public isFetchingPullRequests(repository: IRepository): boolean {
+    const key = this.keyOf(repository)
+    return (this.activeFetchCountPerRepository.get(key) || 0) > 0
+  }
 
-    return currentCount > 0
+  private keyOf(repository: IRepository) {
+    return `${getFullName(repository)}-${repository.path}`
   }
 
   /** Loads the status for the given pull request. */
   public async fetchPullRequestStatus(
-    repository: GitHubRepository,
+    repository: IRepository,
     account: Account,
     pullRequest: PullRequest
   ): Promise<void> {
@@ -107,7 +104,7 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
 
   /** Loads the status for all pull request against a given repository. */
   public async fetchPullRequestStatuses(
-    repository: GitHubRepository,
+    repository: IRepository,
     account: Account
   ): Promise<void> {
     const prs = await this.fetchPullRequestsFromCache(repository)
@@ -117,7 +114,7 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
 
   /** Gets the pull requests against the given repository. */
   public async fetchPullRequestsFromCache(
-    repository: GitHubRepository
+    repository: IRepository
   ): Promise<ReadonlyArray<PullRequest>> {
     const gitHubRepositoryID = repository.dbID
 
@@ -241,23 +238,20 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
   }
 
   private updateActiveFetchCount(
-    repository: GitHubRepository,
+    repository: IRepository,
     update: (count: number) => number
   ) {
-    const repoDbId = forceUnwrap(
-      'Cannot fetch PRs for a repository which is not in the database',
-      repository.dbID
-    )
-    const currentCount = this.activeFetchCountPerRepository.get(repoDbId) || 0
+    const key = this.keyOf(repository)
+    const currentCount = this.activeFetchCountPerRepository.get(key) || 0
     const newCount = update(currentCount)
 
-    this.activeFetchCountPerRepository.set(repoDbId, newCount)
+    this.activeFetchCountPerRepository.set(key, newCount)
     this.emitUpdate(repository)
   }
 
   private async fetchAndCachePullRequestStatus(
     pullRequests: ReadonlyArray<PullRequest>,
-    repository: GitHubRepository,
+    repository: IRepository,
     account: Account
   ): Promise<void> {
     const apiClient = API.fromAccount(account)
@@ -265,7 +259,7 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
 
     for (const pr of pullRequests) {
       const combinedRefStatus = await apiClient.fetchCombinedRefStatus(
-        repository.owner.login,
+        repository.ghRepository!.owner.login,
         repository.name,
         pr.head.sha
       )
@@ -284,7 +278,7 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
       })
     }
 
-    await this.cachePullRequestStatuses(statuses)
+    await this.cachePullRequestStatuses(repository, statuses)
     this.emitUpdate(repository)
   }
 
@@ -319,99 +313,66 @@ export class PullRequestStore extends TypedBaseStore<GitHubRepository> {
     )
   }
 
-  private async cachePullRequests(
-    apiResults: ReadonlyArray<IPullRequestAPIResult>,
-    repository: IRepository
-  ): Promise<void> {
-    const ghRepo = forceUnwrap(
-      'Cannot store pull requests for non github repos',
-      repository.ghRepository
-    )
-    const prs = new Array<IPullRequest>()
-
-    for (const prAPIResult of apiResults) {
-      // `pr.head.repo` represents the source of the pull request. It might be
-      // a branch associated with the current repository, or a fork of the
-      // current repository.
-      //
-      // In cases where the user has removed the fork of the repository after
-      // opening a pull request, this can be `null`, and the app will not store
-      // this pull request.
-      if (prAPIResult.head.repo == null) {
-        log.debug(
-          `Unable to store pull request #${
-            prAPIResult.number
-          } for repository ${getFullName(
-            repository
-          )} as it has no head repository associated with it`
-        )
-        continue
-      }
-
-      await this.repositoryStore.upsertGitHubRepository(
-        repository,
-        getEndpoint(ghRepo),
-        prAPIResult.head.repo
-      )
-
-      // We know the base repo isn't null since that's where we got the PR from
-      // in the first place.
-      await this.repositoryStore.upsertGitHubRepository(
-        repository,
-        getEndpoint(ghRepo),
-        prAPIResult.base.repo!
-      )
-
-      prs.push({
-        number: prAPIResult.number,
-        title: prAPIResult.title,
-        createdAt: prAPIResult.created_at,
-        head: {
-          ref: prAPIResult.head.ref,
-          sha: prAPIResult.head.sha,
-        },
-        base: {
-          ref: prAPIResult.base.ref,
-          sha: prAPIResult.base.sha,
-        },
-        author: prAPIResult.user.login,
-      })
+  private prAPIResultToModel(apiResult: IPullRequestAPIResult): IPullRequest {
+    const model: IPullRequest = {
+      number: apiResult.number,
+      title: apiResult.title,
+      createdAt: apiResult.created_at,
+      head: {
+        ref: apiResult.head.ref,
+        sha: apiResult.head.sha,
+      },
+      base: {
+        ref: apiResult.base.ref,
+        sha: apiResult.base.sha,
+      },
+      author: apiResult.user.login,
     }
 
+    return model
+  }
+
+  private async cachePullRequests(
+    repository: IRepository,
+    apiResults: ReadonlyArray<IPullRequestAPIResult>
+  ): Promise<void> {
     const collection = this.ghDb.getCollection(Collections.Repository)
     await collection.findAndUpdate(
-      {
-        name: repository.name,
-        path: repository.path,
-      },
-      r => ({
-        ...r,
-        ghRepository: {
-          ...r.ghRepository,
-          pullRequests: prs,
-        },
-      })
+      { name: repository.name, path: repository.path },
+      d => {
+        const ghRepo = d.ghRepository
+        return {
+          ...d,
+          ghRepository: {
+            ...ghRepo,
+            pullRequests: apiResults.map(this.prAPIResultToModel),
+          },
+        }
+      }
     )
   }
 
   private async cachePullRequestStatuses(
-    statuses: Array<IPullRequestStatus>
+    repository: IRepository,
+    apiResults: Array<IPullRequestStatus>
   ): Promise<void> {
-    const table = this.pullRequestDatabase.pullRequestStatus
+    if (repository.ghRepository == null) {
+      return fatalError('Cannot store PRs for non gh repo')
+    }
 
-    await this.pullRequestDatabase.transaction('rw', table, async () => {
-      for (const status of statuses) {
-        const record = await table
-          .where('[sha+pullRequestId]')
-          .equals([status.sha, status.pullRequestId])
-          .first()
-
-        if (record == null) {
-          await table.add(status)
-        } else {
-          await table.put({ id: record.id, ...status })
+    const collection = this.ghDb.getCollection(Collections.Repository)
+    await collection.findAndUpdate(
+      { name: repository.name, path: repository.path },
+      d => {
+        const ghRepo = d.ghRepository
+        return {
+          ...d,
+          ghRepository: {
+            ...ghRepo,
+            apiResults,
+          },
         }
       }
-    })
+    )
   }
 }

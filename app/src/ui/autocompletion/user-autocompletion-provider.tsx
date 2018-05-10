@@ -2,9 +2,9 @@ import * as React from 'react'
 
 import { IAutocompletionProvider } from './index'
 import { GitHubUserStore } from '../../lib/stores'
-import { GitHubRepository } from '../../models/github-repository'
 import { Account } from '../../models/account'
 import { IGitHubUser } from '../../lib/databases/index'
+import { IRepository } from '../../database'
 
 /** An autocompletion hit for a user. */
 export interface IUserHit {
@@ -42,12 +42,12 @@ export class UserAutocompletionProvider
   public readonly kind = 'user'
 
   private readonly gitHubUserStore: GitHubUserStore
-  private readonly repository: GitHubRepository
+  private readonly repository: IRepository
   private readonly account: Account | null
 
   public constructor(
     gitHubUserStore: GitHubUserStore,
-    repository: GitHubRepository,
+    repository: IRepository,
     account?: Account
   ) {
     this.gitHubUserStore = gitHubUserStore

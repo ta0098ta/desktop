@@ -3,7 +3,7 @@
 import * as path from 'path'
 import { expect } from 'chai'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import { getStatus } from '../../../src/lib/git/status'
 import {
   setupFixtureRepository,
@@ -15,11 +15,11 @@ import { GitProcess } from 'dugite'
 import * as fs from 'fs-extra'
 
 describe('git/status', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(() => {
     const testRepoPath = setupFixtureRepository('test-repo')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = new IRepository(testRepoPath, -1, null, false)
   })
 
   describe('getStatus', () => {
@@ -61,7 +61,7 @@ describe('git/status', () => {
 
     it('reflects copies', async () => {
       const testRepoPath = await setupFixtureRepository('copy-detection-status')
-      repository = new Repository(testRepoPath, -1, null, false)
+      repository = new IRepository(testRepoPath, -1, null, false)
 
       await GitProcess.exec(['add', '.'], repository.path)
 

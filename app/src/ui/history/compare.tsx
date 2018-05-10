@@ -8,7 +8,7 @@ import {
   ICompareBranch,
 } from '../../lib/app-state'
 import { CommitList } from './commit-list'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Branch } from '../../models/branch'
 import { Dispatcher } from '../../lib/dispatcher'
 import { ThrottledScheduler } from '../lib/throttled-scheduler'
@@ -24,7 +24,7 @@ import { SelectionSource } from '../lib/filter-list'
 import { Ref } from '../lib/ref'
 
 interface ICompareSidebarProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly compareState: ICompareState
   readonly gitHubUsers: Map<string, IGitHubUser>
   readonly emoji: Map<string, string>

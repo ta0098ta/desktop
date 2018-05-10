@@ -21,10 +21,10 @@ interface Queue extends NodeJS.EventEmitter {
   ): void
 }
 
-import { Repository } from '../../../models/repository'
 import { getAheadBehind } from '../../../lib/git'
 import { Branch, IAheadBehind } from '../../../models/branch'
 import { ComparisonCache } from '../../comparison-cache'
+import { IRepository } from '../../../database'
 
 export class AheadBehindUpdater {
   private comparisonCache = new ComparisonCache()
@@ -35,7 +35,7 @@ export class AheadBehindUpdater {
   })
 
   public constructor(
-    private repository: Repository,
+    private repository: IRepository,
     private onCacheUpdate: (cache: ComparisonCache) => void
   ) {}
 

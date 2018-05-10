@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Octicon, iconForRepository } from '../octicons'
 import { showContextualMenu } from '../main-process-proxy'
 import { Repositoryish } from './group-repositories'
@@ -47,7 +47,7 @@ export class RepositoryListItem extends React.Component<
     const repository = this.props.repository
     const path = repository.path
     const gitHubRepo =
-      repository instanceof Repository ? repository.gitHubRepository : null
+      repository instanceof IRepository ? repository.gitHubRepository : null
     const tooltip = gitHubRepo
       ? gitHubRepo.fullName + '\n' + gitHubRepo.htmlURL + '\n' + path
       : path
@@ -78,8 +78,8 @@ export class RepositoryListItem extends React.Component<
 
   public shouldComponentUpdate(nextProps: IRepositoryListItemProps): boolean {
     if (
-      nextProps.repository instanceof Repository &&
-      this.props.repository instanceof Repository
+      nextProps.repository instanceof IRepository &&
+      this.props.repository instanceof IRepository
     ) {
       return (
         nextProps.repository.id !== this.props.repository.id ||
@@ -94,7 +94,7 @@ export class RepositoryListItem extends React.Component<
     event.preventDefault()
 
     const repository = this.props.repository
-    const missing = repository instanceof Repository && repository.missing
+    const missing = repository instanceof IRepository && repository.missing
     const openInExternalEditor = this.props.externalEditorLabel
       ? `Open in ${this.props.externalEditorLabel}`
       : defaultEditorLabel

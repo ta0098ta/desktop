@@ -1,4 +1,4 @@
-import { GitHubRepository } from '../../../models/github-repository'
+import { IGHRepository } from '../../../models/github-repository'
 import { IRemote } from '../../../models/remote'
 import { parseRemote } from '../../remote-parsing'
 import { forceUnwrap } from '../../fatal-error'
@@ -11,7 +11,7 @@ export const UpstreamRemoteName = 'upstream'
  * remotes.
  */
 export function findUpstreamRemote(
-  parent: GitHubRepository,
+  parent: IGHRepository,
   remotes: ReadonlyArray<IRemote>
 ): IRemote | null {
   const upstream = remotes.find(r => r.name === UpstreamRemoteName)

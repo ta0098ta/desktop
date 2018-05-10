@@ -7,11 +7,12 @@ import {
 import { ErrorWithMetadata } from '../error-with-metadata'
 import { ExternalEditorError } from '../editors/shared'
 import { AuthenticationErrors } from '../git/authentication'
-import { Repository } from '../../models/repository'
 import { PopupType } from '../../lib/app-state'
 import { ShellError } from '../shells'
 import { UpstreamAlreadyExistsError } from '../stores/upstream-already-exists-error'
 import { FetchType } from '../stores/index'
+import { IGHRepository } from '../../models/github-repository'
+import { CloningRepository } from '../../models/cloning-repository'
 
 /** An error which also has a code property. */
 interface IErrorWithCode extends Error {
@@ -80,11 +81,11 @@ export async function missingRepositoryHandler(
   }
 
   const repository = e.metadata.repository
-  if (!repository || !(repository instanceof Repository)) {
+  if (repository == null || repository instanceof CloningRepository) {
     return error
   }
 
-  if (repository.missing) {
+  if (repository.isMissing) {
     return null
   }
 
@@ -154,7 +155,11 @@ export async function gitAuthenticationErrorHandler(
   // If it's a GitHub repository then it's not some generic git server
   // authentication problem, but more likely a legit permission problem. So let
   // the error continue to bubble up.
-  if (repository instanceof Repository && repository.gitHubRepository) {
+  if (
+    repository != null &&
+    !(repository instanceof CloningRepository) &&
+    repository.ghRepository != null
+  ) {
     return error
   }
 
@@ -235,7 +240,7 @@ export async function pushNeedsPullHandler(
     return error
   }
 
-  if (!(repository instanceof Repository)) {
+  if (!(repository instanceof IGHRepository)) {
     return error
   }
 

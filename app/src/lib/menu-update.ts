@@ -1,11 +1,11 @@
 import { MenuIDs } from '../main-process/menu'
 import { merge } from './merge'
 import { IAppState, SelectionType } from '../lib/app-state'
-import { Repository } from '../models/repository'
 import { CloningRepository } from '../models/cloning-repository'
 import { TipState } from '../models/tip'
 import { updateMenuState as ipcUpdateMenuState } from '../ui/main-process-proxy'
 import { AppMenu, MenuItem } from '../models/app-menu'
+import { IRepository } from '../database'
 
 export interface IMenuItemState {
   readonly enabled?: boolean
@@ -72,17 +72,17 @@ class MenuStateBuilder {
 }
 
 function isRepositoryHostedOnGitHub(
-  repository: Repository | CloningRepository
+  repository: IRepository | CloningRepository
 ) {
   if (
     !repository ||
     repository instanceof CloningRepository ||
-    !repository.gitHubRepository
+    repository.ghRepository == null
   ) {
     return false
   }
 
-  return repository.gitHubRepository.htmlURL !== null
+  return repository.ghRepository.htmlUrl !== null
 }
 
 function menuItemStateEqual(state: IMenuItemState, menuItem: MenuItem) {
@@ -267,7 +267,7 @@ function getRepositoryMenuBuilder(state: IAppState): MenuStateBuilder {
       selectedState &&
       selectedState.type === SelectionType.MissingRepository
     ) {
-      if (selectedState.repository.gitHubRepository) {
+      if (selectedState.repository.ghRepository != null) {
         menuStateBuilder.enable('view-repository-on-github')
       }
       menuStateBuilder.enable('remove-repository')

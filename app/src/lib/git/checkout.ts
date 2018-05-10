@@ -1,5 +1,4 @@
 import { git, IGitExecutionOptions, gitNetworkArguments } from './core'
-import { Repository } from '../../models/repository'
 import { Branch, BranchType } from '../../models/branch'
 import {
   CheckoutProgressParser,
@@ -12,6 +11,7 @@ import {
   envForAuthentication,
   AuthenticationErrors,
 } from './authentication'
+import { IRepository } from '../../database'
 
 export type ProgressCallback = (progress: ICheckoutProgress) => void
 
@@ -30,7 +30,7 @@ export type ProgressCallback = (progress: ICheckoutProgress) => void
  *                           'git checkout'.
  */
 export async function checkoutBranch(
-  repository: Repository,
+  repository: IRepository,
   account: IGitAccount | null,
   branch: Branch,
   progressCallback?: ProgressCallback
@@ -77,7 +77,7 @@ export async function checkoutBranch(
 
 /** Check out the paths at HEAD. */
 export async function checkoutPaths(
-  repository: Repository,
+  repository: IRepository,
   paths: ReadonlyArray<string>
 ): Promise<void> {
   await git(

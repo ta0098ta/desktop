@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Dispatcher } from '../../lib/dispatcher'
 import { WorkingDirectoryFileChange } from '../../models/status'
 import { Button } from '../lib/button'
@@ -11,7 +11,7 @@ import { Monospaced } from '../lib/monospaced'
 import { Checkbox, CheckboxValue } from '../lib/checkbox'
 
 interface IDiscardChangesProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly dispatcher: Dispatcher
   readonly files: ReadonlyArray<WorkingDirectoryFileChange>
   readonly confirmDiscardChanges: boolean

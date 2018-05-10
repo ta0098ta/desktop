@@ -1,11 +1,11 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { SubmoduleEntry } from '../../models/submodule'
 import { pathExists } from '../file-system'
 import * as Path from 'path'
+import { IRepository } from '../../database'
 
 export async function listSubmodules(
-  repository: Repository
+  repository: IRepository
 ): Promise<ReadonlyArray<SubmoduleEntry>> {
   const [submodulesFile, submodulesDir] = await Promise.all([
     pathExists(Path.join(repository.path, '.gitmodules')),
@@ -76,7 +76,7 @@ export async function listSubmodules(
 }
 
 export async function resetSubmodulePaths(
-  repository: Repository,
+  repository: IRepository,
   paths: ReadonlyArray<string>
 ): Promise<void> {
   for (const path of paths) {

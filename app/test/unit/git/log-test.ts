@@ -2,18 +2,18 @@
 
 import { expect } from 'chai'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import { getChangedFiles, getCommits } from '../../../src/lib/git'
 import { setupFixtureRepository } from '../../helpers/repositories'
 import { AppFileStatus } from '../../../src/models/status'
 import { GitProcess } from 'dugite'
 
 describe('git/log', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(() => {
     const testRepoPath = setupFixtureRepository('test-repo')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = new IRepository(testRepoPath, -1, null, false)
   })
 
   describe('getCommits', () => {
@@ -30,7 +30,7 @@ describe('git/log', () => {
 
     it('handles repository with HEAD file on disk', async () => {
       const path = await setupFixtureRepository('repository-with-HEAD-file')
-      const repo = new Repository(path, 1, null, false)
+      const repo = new IRepository(path, 1, null, false)
       const commits = await getCommits(repo, 'HEAD', 100)
       expect(commits.length).to.equal(2)
     })
@@ -49,7 +49,7 @@ describe('git/log', () => {
 
     it('detects renames', async () => {
       const testRepoPath = setupFixtureRepository('rename-history-detection')
-      repository = new Repository(testRepoPath, -1, null, false)
+      repository = new IRepository(testRepoPath, -1, null, false)
 
       const first = await getChangedFiles(repository, '55bdecb')
       expect(first.length).to.equal(1)
@@ -66,7 +66,7 @@ describe('git/log', () => {
 
     it('detect copies', async () => {
       const testRepoPath = setupFixtureRepository('copies-history-detection')
-      repository = new Repository(testRepoPath, -1, null, false)
+      repository = new IRepository(testRepoPath, -1, null, false)
 
       // ensure the test repository is configured to detect copies
       await GitProcess.exec(

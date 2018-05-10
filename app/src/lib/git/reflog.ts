@@ -1,9 +1,9 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /** Get the `limit` most recently checked out branches. */
 export async function getRecentBranches(
-  repository: Repository,
+  repository: IRepository,
   limit: number
 ): Promise<ReadonlyArray<string>> {
   // "git reflog show" is just an alias for "git log -g --abbrev-commit --pretty=oneline"

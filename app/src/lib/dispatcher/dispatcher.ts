@@ -4,7 +4,6 @@ import { remote } from 'electron'
 import { Disposable } from 'event-kit'
 
 import { Account } from '../../models/account'
-import { Repository } from '../../models/repository'
 import {
   WorkingDirectoryFileChange,
   CommittedFileChange,
@@ -25,7 +24,6 @@ import { Branch } from '../../models/branch'
 import { Commit } from '../../models/commit'
 import { ExternalEditor } from '../../lib/editors'
 import { IAPIUser } from '../../lib/api'
-import { GitHubRepository } from '../../models/github-repository'
 import { ICommitMessage } from '../stores/git-store'
 import { executeMenuItem } from '../../ui/main-process-proxy'
 import { AppMenu, ExecutableMenuItem } from '../../models/app-menu'
@@ -98,32 +96,32 @@ export class Dispatcher {
 
   /** Remove the repositories represented by the given IDs from local storage. */
   public removeRepositories(
-    repositories: ReadonlyArray<Repository | CloningRepository>
+    repositories: ReadonlyArray<IRepository | CloningRepository>
   ): Promise<void> {
     return this.appStore._removeRepositories(repositories)
   }
 
   /** Update the repository's `missing` flag. */
   public async updateRepositoryMissing(
-    repository: Repository,
+    repository: IRepository,
     missing: boolean
-  ): Promise<Repository> {
+  ): Promise<IRepository> {
     return this.appStore._updateRepositoryMissing(repository, missing)
   }
 
   /** Load the history for the repository. */
-  public loadHistory(repository: Repository): Promise<void> {
+  public loadHistory(repository: IRepository): Promise<void> {
     return this.appStore._loadHistory(repository)
   }
 
   /** Load the next batch of history for the repository. */
-  public loadNextHistoryBatch(repository: Repository): Promise<void> {
+  public loadNextHistoryBatch(repository: IRepository): Promise<void> {
     return this.appStore._loadNextHistoryBatch(repository)
   }
 
   /** Load the changed files for the current history selection. */
   public loadChangedFilesForCurrentSelection(
-    repository: Repository
+    repository: IRepository
   ): Promise<void> {
     return this.appStore._loadChangedFilesForCurrentSelection(repository)
   }
@@ -138,7 +136,7 @@ export class Dispatcher {
    *            digest. This should match exactly that of Commit.Sha
    */
   public changeHistoryCommitSelection(
-    repository: Repository,
+    repository: IRepository,
     sha: string
   ): Promise<void> {
     return this.appStore._changeHistoryCommitSelection(repository, sha)
@@ -153,7 +151,7 @@ export class Dispatcher {
    *            IHistoryState.changedFiles
    */
   public changeHistoryFileSelection(
-    repository: Repository,
+    repository: IRepository,
     file: CommittedFileChange
   ): Promise<void> {
     return this.appStore._changeHistoryFileSelection(repository, file)
@@ -172,13 +170,13 @@ export class Dispatcher {
   }
 
   /** Load the working directory status. */
-  public loadStatus(repository: Repository): Promise<void> {
+  public loadStatus(repository: IRepository): Promise<void> {
     return this.appStore._loadStatus(repository)
   }
 
   /** Change the selected section in the repository. */
   public changeRepositorySection(
-    repository: Repository,
+    repository: IRepository,
     section: RepositorySection
   ): Promise<void> {
     return this.appStore._changeRepositorySection(repository, section)
@@ -186,7 +184,7 @@ export class Dispatcher {
 
   /** Change the currently selected file in Changes. */
   public changeChangesSelection(
-    repository: Repository,
+    repository: IRepository,
     selectedFiles: WorkingDirectoryFileChange[]
   ): Promise<void> {
     return this.appStore._changeChangesSelection(repository, selectedFiles)
@@ -198,7 +196,7 @@ export class Dispatcher {
    * which will be merged into the final commit message.
    */
   public async commitIncludedChanges(
-    repository: Repository,
+    repository: IRepository,
     summary: string,
     description: string | null,
     trailers?: ReadonlyArray<ITrailer>
@@ -213,7 +211,7 @@ export class Dispatcher {
 
   /** Change the file's includedness. */
   public changeFileIncluded(
-    repository: Repository,
+    repository: IRepository,
     file: WorkingDirectoryFileChange,
     include: boolean
   ): Promise<void> {
@@ -222,7 +220,7 @@ export class Dispatcher {
 
   /** Change the file's line selection state. */
   public changeFileLineSelection(
-    repository: Repository,
+    repository: IRepository,
     file: WorkingDirectoryFileChange,
     diffSelection: DiffSelection
   ): Promise<void> {
@@ -235,7 +233,7 @@ export class Dispatcher {
 
   /** Change the Include All state. */
   public changeIncludeAllFiles(
-    repository: Repository,
+    repository: IRepository,
     includeAll: boolean
   ): Promise<void> {
     return this.appStore._changeIncludeAllFiles(repository, includeAll)
@@ -244,7 +242,7 @@ export class Dispatcher {
   /**
    * Refresh the repository. This would be used, e.g., when the app gains focus.
    */
-  public refreshRepository(repository: Repository): Promise<void> {
+  public refreshRepository(repository: IRepository): Promise<void> {
     return this.appStore._refreshRepository(repository)
   }
 
@@ -280,53 +278,53 @@ export class Dispatcher {
    * off of the current state of HEAD.
    */
   public createBranch(
-    repository: Repository,
+    repository: IRepository,
     name: string,
     startPoint?: string
-  ): Promise<Repository> {
+  ): Promise<IRepository> {
     return this.appStore._createBranch(repository, name, startPoint)
   }
 
   /** Check out the given branch. */
   public checkoutBranch(
-    repository: Repository,
+    repository: IRepository,
     branch: Branch | string
-  ): Promise<Repository> {
+  ): Promise<IRepository> {
     return this.appStore._checkoutBranch(repository, branch)
   }
 
   /** Push the current branch. */
-  public push(repository: Repository): Promise<void> {
+  public push(repository: IRepository): Promise<void> {
     return this.appStore._push(repository)
   }
 
   /** Pull the current branch. */
-  public pull(repository: Repository): Promise<void> {
+  public pull(repository: IRepository): Promise<void> {
     return this.appStore._pull(repository)
   }
 
   /** Fetch a specific refspec for the repository. */
   public fetchRefspec(
-    repository: Repository,
+    repository: IRepository,
     fetchspec: string
   ): Promise<void> {
     return this.appStore._fetchRefspec(repository, fetchspec)
   }
 
   /** Fetch all refs for the repository */
-  public fetch(repository: Repository, fetchType: FetchType): Promise<void> {
+  public fetch(repository: IRepository, fetchType: FetchType): Promise<void> {
     return this.appStore._fetch(repository, fetchType)
   }
 
   /** Publish the repository to GitHub with the given properties. */
   public publishRepository(
-    repository: Repository,
+    repository: IRepository,
     name: string,
     description: string,
     private_: boolean,
     account: Account,
     org: IAPIUser | null
-  ): Promise<Repository> {
+  ): Promise<IRepository> {
     return this.appStore._publishRepository(
       repository,
       name,
@@ -406,7 +404,7 @@ export class Dispatcher {
 
   /** Rename the branch to a new name. */
   public renameBranch(
-    repository: Repository,
+    repository: IRepository,
     branch: Branch,
     newName: string
   ): Promise<void> {
@@ -418,7 +416,7 @@ export class Dispatcher {
    * branch, and then check out the default branch.
    */
   public deleteBranch(
-    repository: Repository,
+    repository: IRepository,
     branch: Branch,
     includeRemote: boolean
   ): Promise<void> {
@@ -427,19 +425,22 @@ export class Dispatcher {
 
   /** Discard the changes to the given files. */
   public discardChanges(
-    repository: Repository,
+    repository: IRepository,
     files: ReadonlyArray<WorkingDirectoryFileChange>
   ): Promise<void> {
     return this.appStore._discardChanges(repository, files)
   }
 
   /** Undo the given commit. */
-  public undoCommit(repository: Repository, commit: Commit): Promise<void> {
+  public undoCommit(repository: IRepository, commit: Commit): Promise<void> {
     return this.appStore._undoCommit(repository, commit)
   }
 
   /** Revert the commit with the given SHA */
-  public revertCommit(repository: Repository, commit: Commit): Promise<void> {
+  public revertCommit(
+    repository: IRepository,
+    commit: Commit
+  ): Promise<void> {
     return this.appStore._revertCommit(repository, commit)
   }
 
@@ -489,7 +490,7 @@ export class Dispatcher {
   }
 
   /** Update the repository's issues from GitHub. */
-  public refreshIssues(repository: GitHubRepository): Promise<void> {
+  public refreshIssues(repository: IRepository): Promise<void> {
     return this.appStore._refreshIssues(repository)
   }
 
@@ -503,7 +504,7 @@ export class Dispatcher {
    * commit in the changes view for a particular repository.
    */
   public setCommitMessage(
-    repository: Repository,
+    repository: IRepository,
     message: ICommitMessage | null
   ): Promise<void> {
     return this.appStore._setCommitMessage(repository, message)
@@ -558,7 +559,7 @@ export class Dispatcher {
   }
 
   /** Merge the named branch into the current branch. */
-  public mergeBranch(repository: Repository, branch: string): Promise<void> {
+  public mergeBranch(repository: IRepository, branch: string): Promise<void> {
     return this.appStore._mergeBranch(repository, branch)
   }
 
@@ -574,7 +575,7 @@ export class Dispatcher {
 
   /** Changes the URL for the remote that matches the given name  */
   public setRemoteURL(
-    repository: Repository,
+    repository: IRepository,
     name: string,
     url: string
   ): Promise<void> {
@@ -588,7 +589,7 @@ export class Dispatcher {
 
   /** Add the pattern to the repository's gitignore. */
   public ignore(
-    repository: Repository,
+    repository: IRepository,
     pattern: string | string[]
   ): Promise<void> {
     return this.appStore._ignore(repository, pattern)
@@ -621,7 +622,7 @@ export class Dispatcher {
    * will be created, otherwise the current file will be overwritten.
    */
   public async saveGitIgnore(
-    repository: Repository,
+    repository: IRepository,
     text: string
   ): Promise<void> {
     await this.appStore._saveGitIgnore(repository, text)
@@ -635,7 +636,9 @@ export class Dispatcher {
    * with the contents of the file. If there's no .gitignore file
    * in the repository root the promise will resolve with null.
    */
-  public async readGitIgnore(repository: Repository): Promise<string | null> {
+  public async readGitIgnore(
+    repository: IRepository
+  ): Promise<string | null> {
     return this.appStore._readGitIgnore(repository)
   }
 
@@ -776,7 +779,7 @@ export class Dispatcher {
   /**
    * Update the location of an existing repository and clear the missing flag.
    */
-  public async relocateRepository(repository: Repository): Promise<void> {
+  public async relocateRepository(repository: IRepository): Promise<void> {
     const directories = remote.dialog.showOpenDialog({
       properties: ['openDirectory'],
     })
@@ -789,7 +792,7 @@ export class Dispatcher {
 
   /** Update the repository's path. */
   private async updateRepositoryPath(
-    repository: Repository,
+    repository: IRepository,
     path: string
   ): Promise<void> {
     await this.appStore._updateRepositoryPath(repository, path)
@@ -906,7 +909,7 @@ export class Dispatcher {
   }
 
   private async handleCloneInDesktopOptions(
-    repository: Repository,
+    repository: IRepository,
     action: IOpenRepositoryFromURLAction
   ): Promise<void> {
     const { filepath, pr, branch } = action
@@ -951,7 +954,7 @@ export class Dispatcher {
     const state = this.appStore.getState()
     const repositories = state.repositories
     const existingRepository = repositories.find(r => {
-      if (r instanceof Repository) {
+      if (r instanceof IRepository) {
         const gitHubRepository = r.gitHubRepository
         if (!gitHubRepository) {
           return false
@@ -999,7 +1002,7 @@ export class Dispatcher {
 
   /** Prompt the user to authenticate for a generic git server. */
   public promptForGenericGitAuthentication(
-    repository: Repository | CloningRepository,
+    repository: IRepository | CloningRepository,
     retry: RetryAction
   ): Promise<void> {
     return this.appStore.promptForGenericGitAuthentication(repository, retry)
@@ -1059,7 +1062,7 @@ export class Dispatcher {
 
   /** Install the LFS filters */
   public installLFSHooks(
-    repositories: ReadonlyArray<Repository>
+    repositories: ReadonlyArray<IRepository>
   ): Promise<void> {
     return this.appStore._installLFSHooks(repositories)
   }
@@ -1070,7 +1073,7 @@ export class Dispatcher {
   }
 
   /** Open the merge tool for the given file. */
-  public openMergeTool(repository: Repository, path: string): Promise<void> {
+  public openMergeTool(repository: IRepository, path: string): Promise<void> {
     return this.appStore._openMergeTool(repository, path)
   }
 
@@ -1089,14 +1092,14 @@ export class Dispatcher {
    * openCreatePullRequestInBrowser method which immediately opens the
    * create pull request page without showing a dialog.
    */
-  public createPullRequest(repository: Repository): Promise<void> {
+  public createPullRequest(repository: IRepository): Promise<void> {
     return this.appStore._createPullRequest(repository)
   }
 
   /**
    * Show the current pull request on github.com
    */
-  public showPullRequest(repository: Repository): Promise<void> {
+  public showPullRequest(repository: IRepository): Promise<void> {
     return this.appStore._showPullRequest(repository)
   }
 
@@ -1106,7 +1109,7 @@ export class Dispatcher {
    * See the createPullRequest method for more details.
    */
   public openCreatePullRequestInBrowser(
-    repository: Repository,
+    repository: IRepository,
     branch: Branch
   ): Promise<void> {
     return this.appStore._openCreatePullRequestInBrowser(repository, branch)
@@ -1115,18 +1118,22 @@ export class Dispatcher {
   /**
    * Update the existing `upstream` remote to point to the repository's parent.
    */
-  public updateExistingUpstreamRemote(repository: Repository): Promise<void> {
+  public updateExistingUpstreamRemote(
+    repository: IRepository
+  ): Promise<void> {
     return this.appStore._updateExistingUpstreamRemote(repository)
   }
 
   /** Ignore the existing `upstream` remote. */
-  public ignoreExistingUpstreamRemote(repository: Repository): Promise<void> {
+  public ignoreExistingUpstreamRemote(
+    repository: IRepository
+  ): Promise<void> {
     return this.appStore._ignoreExistingUpstreamRemote(repository)
   }
 
   /** Checks out a PR whose ref exists locally or in a forked repo. */
   public async checkoutPullRequest(
-    repository: Repository,
+    repository: IRepository,
     pullRequest: PullRequest
   ): Promise<void> {
     return this.appStore._checkoutPullRequest(repository, pullRequest)
@@ -1139,7 +1146,7 @@ export class Dispatcher {
    * @param repository Co-author settings are per-repository
    */
   public setShowCoAuthoredBy(
-    repository: Repository,
+    repository: IRepository,
     showCoAuthoredBy: boolean
   ) {
     return this.appStore._setShowCoAuthoredBy(repository, showCoAuthoredBy)
@@ -1152,7 +1159,7 @@ export class Dispatcher {
    * @param coAuthors  Zero or more authors
    */
   public setCoAuthors(
-    repository: Repository,
+    repository: IRepository,
     coAuthors: ReadonlyArray<IAuthor>
   ) {
     return this.appStore._setCoAuthors(repository, coAuthors)
@@ -1162,7 +1169,7 @@ export class Dispatcher {
    * Initialze the compare state for the current repository.
    */
   public initializeCompare(
-    repository: Repository,
+    repository: IRepository,
     initialAction?: CompareAction
   ) {
     return this.appStore._initializeCompare(repository, initialAction)
@@ -1171,7 +1178,7 @@ export class Dispatcher {
   /**
    * Update the compare state for the current repository
    */
-  public executeCompare(repository: Repository, action: CompareAction) {
+  public executeCompare(repository: IRepository, action: CompareAction) {
     return this.appStore._executeCompare(repository, action)
   }
 

@@ -1,5 +1,5 @@
-import { Repository } from '../models/repository'
 import { CloneOptions } from './git/clone'
+import { IRepository } from '../database'
 
 /** The types of actions that can be retried. */
 export enum RetryActionType {
@@ -11,9 +11,9 @@ export enum RetryActionType {
 
 /** The retriable actions and their associated data. */
 export type RetryAction =
-  | { type: RetryActionType.Push; repository: Repository }
-  | { type: RetryActionType.Pull; repository: Repository }
-  | { type: RetryActionType.Fetch; repository: Repository }
+  | { type: RetryActionType.Push; repository: IRepository }
+  | { type: RetryActionType.Pull; repository: IRepository }
+  | { type: RetryActionType.Fetch; repository: IRepository }
   | {
       type: RetryActionType.Clone
       url: string

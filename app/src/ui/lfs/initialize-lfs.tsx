@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Button } from '../lib/button'
 import { ButtonGroup } from '../lib/button-group'
 import { Dialog, DialogContent, DialogFooter } from '../dialog'
@@ -17,7 +17,7 @@ const MaxRepositoriesToList = 10
 
 interface IInitializeLFSProps {
   /** The repositories in which LFS needs to be initialized. */
-  readonly repositories: ReadonlyArray<Repository>
+  readonly repositories: ReadonlyArray<IRepository>
 
   /**
    * Event triggered when the dialog is dismissed by the user in the
@@ -28,7 +28,7 @@ interface IInitializeLFSProps {
   /**
    * Called when the user chooses to initialize LFS in the repositories.
    */
-  readonly onInitialize: (repositories: ReadonlyArray<Repository>) => void
+  readonly onInitialize: (repositories: ReadonlyArray<IRepository>) => void
 }
 
 export class InitializeLFS extends React.Component<IInitializeLFSProps, {}> {

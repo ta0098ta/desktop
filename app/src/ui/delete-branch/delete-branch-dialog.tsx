@@ -1,17 +1,17 @@
 import * as React from 'react'
 
 import { Dispatcher } from '../../lib/dispatcher'
-import { Repository } from '../../models/repository'
 import { Branch } from '../../models/branch'
 import { Button } from '../lib/button'
 import { ButtonGroup } from '../lib/button-group'
 import { Checkbox, CheckboxValue } from '../lib/checkbox'
 import { Dialog, DialogContent, DialogFooter } from '../dialog'
 import { Ref } from '../lib/ref'
+import { IRepository } from '../../database'
 
 interface IDeleteBranchProps {
   readonly dispatcher: Dispatcher
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly branch: Branch
   readonly existsOnRemote: boolean
   readonly onDismissed: () => void

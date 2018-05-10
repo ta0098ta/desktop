@@ -1,11 +1,11 @@
 import { OcticonSymbol } from '../octicons'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { CloningRepository } from '../../models/cloning-repository'
 
 /**
  * Determine the octicon to display for a given repository.
  */
-export function iconForRepository(repository: Repository | CloningRepository) {
+export function iconForRepository(repository: IRepository | CloningRepository) {
   if (repository instanceof CloningRepository) {
     return OcticonSymbol.desktopDownload
   }

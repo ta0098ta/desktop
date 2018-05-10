@@ -1,6 +1,5 @@
 import * as React from 'react'
 
-import { Repository } from '../../models/repository'
 import { Dispatcher } from '../../lib/dispatcher'
 import { sanitizedBranchName } from '../../lib/sanitize-branch'
 import { Branch } from '../../models/branch'
@@ -20,9 +19,10 @@ import {
 } from '../../models/tip'
 import { assertNever } from '../../lib/fatal-error'
 import { renderBranchNameWarning } from '../lib/branch-name-warnings'
+import { IRepository } from '../../database'
 
 interface ICreateBranchProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly dispatcher: Dispatcher
   readonly onDismissed: () => void
   readonly tip: IUnbornRepository | IDetachedHead | IValidBranch

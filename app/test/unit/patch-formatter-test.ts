@@ -5,7 +5,7 @@ import { expect } from 'chai'
 import * as Path from 'path'
 import * as FS from 'fs'
 
-import { Repository } from '../../src/models/repository'
+import { IRepository } from '../../src/models/repository'
 import {
   WorkingDirectoryFileChange,
   FileChange,
@@ -25,7 +25,7 @@ import { setupFixtureRepository } from '../helpers/repositories'
 async function parseDiff(diff: string): Promise<ITextDiff> {
   const parser = new DiffParser()
   const rawDiff = parser.parse(diff)
-  const repository = new Repository('', -1, null, false)
+  const repository = new IRepository('', -1, null, false)
   const fileChange = new FileChange('file.txt', AppFileStatus.Modified)
   const output = await convertDiff(repository, fileChange, rawDiff, 'HEAD')
   expect(output.kind === DiffType.Text)
@@ -33,12 +33,12 @@ async function parseDiff(diff: string): Promise<ITextDiff> {
 }
 
 describe('patch formatting', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   describe('formatPatchesForModifiedFile', () => {
     beforeEach(() => {
       const testRepoPath = setupFixtureRepository('repo-with-changes')
-      repository = new Repository(testRepoPath, -1, null, false)
+      repository = new IRepository(testRepoPath, -1, null, false)
     })
 
     it('creates right patch when first hunk is selected', async () => {

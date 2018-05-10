@@ -12,8 +12,8 @@ import {
   WorkingDirectoryFileChange,
   AppFileStatus,
 } from '../../../models/status'
-import { Repository } from '../../../models/repository'
 import { DiffHunk, DiffLineType, DiffLine } from '../../../models/diff'
+import { IRepository } from '../../../database'
 
 /** The maximum number of bytes we'll process for highlighting. */
 const MaxHighlightContentLength = 256 * 1024
@@ -37,7 +37,7 @@ interface IFileTokens {
 }
 
 async function getOldFileContent(
-  repository: Repository,
+  repository: IRepository,
   file: ChangedFile
 ): Promise<Buffer> {
   if (file.status === AppFileStatus.New) {
@@ -67,7 +67,7 @@ async function getOldFileContent(
 }
 
 async function getNewFileContent(
-  repository: Repository,
+  repository: IRepository,
   file: ChangedFile
 ): Promise<Buffer> {
   if (file.status === AppFileStatus.Deleted) {
@@ -93,7 +93,7 @@ async function getNewFileContent(
 }
 
 export async function getFileContents(
-  repo: Repository,
+  repo: IRepository,
   file: ChangedFile,
   lineFilters: ILineFilters
 ): Promise<IFileContents> {

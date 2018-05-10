@@ -34,7 +34,7 @@ import {
   SelectionType,
   IRepositoryState,
 } from '../../src/lib/app-state'
-import { Repository } from '../../src/models/repository'
+import { IRepository } from '../../src/models/repository'
 import { Commit } from '../../src/models/commit'
 import { getCommit } from '../../src/lib/git'
 import { GHDatabase } from '../../src/database'
@@ -111,7 +111,7 @@ describe('AppStore', () => {
       }
     }
 
-    let repo: Repository | null = null
+    let repo: IRepository | null = null
     let firstCommit: Commit | null = null
 
     beforeEach(async () => {

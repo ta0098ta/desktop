@@ -3,7 +3,7 @@ import { ToolbarButton, ToolbarButtonStyle } from './button'
 import { Progress } from '../../lib/app-state'
 import { Dispatcher } from '../../lib/dispatcher'
 import { Octicon, OcticonSymbol } from '../octicons'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { IAheadBehind } from '../../models/branch'
 import { TipState } from '../../models/tip'
 import { RelativeTime } from '../relative-time'
@@ -32,7 +32,7 @@ interface IPushPullButtonProps {
   readonly dispatcher: Dispatcher
 
   /** The current repository */
-  readonly repository: Repository
+  readonly repository: IRepository
 
   /**
    * Indicate whether the current branch is valid, unborn or detached HEAD

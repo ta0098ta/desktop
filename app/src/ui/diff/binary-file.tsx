@@ -1,14 +1,14 @@
 import * as React from 'react'
 import * as Path from 'path'
 
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { openFile } from '../../lib/open-file'
 import { Dispatcher } from '../../lib/dispatcher/dispatcher'
 
 import { LinkButton } from '../lib/link-button'
 
 interface IBinaryFileProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly path: string
   readonly dispatcher: Dispatcher
 }

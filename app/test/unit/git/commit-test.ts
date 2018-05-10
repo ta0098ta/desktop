@@ -2,8 +2,6 @@
 
 import * as path from 'path'
 import { expect } from 'chai'
-
-import { Repository } from '../../../src/models/repository'
 import {
   getStatus,
   createCommit,
@@ -32,7 +30,7 @@ import {
 } from '../../../src/models/diff'
 
 import * as fs from 'fs-extra'
-import { IRepository } from '../../../src/database'
+import { IRepository, createRepositoryModel } from '../../../src/database'
 
 async function getTextDiff(
   repo: IRepository,
@@ -154,7 +152,7 @@ describe('git/commit', () => {
   describe('createCommit partials', () => {
     beforeEach(async () => {
       const testRepoPath = setupFixtureRepository('repo-with-changes')
-      repository = new Repository(testRepoPath, -1, null, false)
+      repository = createRepositoryModel(testRepoPath)
     })
 
     it('can commit some lines from new file', async () => {

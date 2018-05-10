@@ -2,14 +2,14 @@ import * as React from 'react'
 import { ButtonGroup } from '../../ui/lib/button-group'
 import { Button } from '../../ui/lib/button'
 import { Dialog, DialogContent, DialogFooter } from '../../ui/dialog'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 
 interface IConfirmRemoveRepositoryProps {
   /** The repository to be removed */
-  readonly repository: Repository
+  readonly repository: IRepository
 
   /** The action to execute when the user confirms */
-  readonly onConfirmation: (repo: Repository) => void
+  readonly onConfirmation: (repo: IRepository) => void
 
   /** The action to execute when the user cancels */
   readonly onDismissed: () => void

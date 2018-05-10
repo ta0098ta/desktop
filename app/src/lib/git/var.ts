@@ -1,6 +1,6 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { CommitIdentity } from '../../models/commit-identity'
+import { IRepository } from '../../database'
 
 /**
  * Gets the author identity, ie the name and email which would
@@ -18,7 +18,7 @@ import { CommitIdentity } from '../../models/commit-identity'
  * commits can be expected to fail as well.
  */
 export async function getAuthorIdentity(
-  repository: Repository
+  repository: IRepository
 ): Promise<CommitIdentity | null> {
   const result = await git(
     ['var', 'GIT_AUTHOR_IDENT'],

@@ -3,7 +3,7 @@
 import * as path from 'path'
 import { expect } from 'chai'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import { reset, resetPaths, GitResetMode } from '../../../src/lib/git/reset'
 import { getStatus } from '../../../src/lib/git/status'
 import { setupFixtureRepository } from '../../helpers/repositories'
@@ -12,11 +12,11 @@ import { GitProcess } from 'dugite'
 import * as fs from 'fs-extra'
 
 describe('git/reset', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(() => {
     const testRepoPath = setupFixtureRepository('test-repo')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = new IRepository(testRepoPath, -1, null, false)
   })
 
   describe('reset', () => {

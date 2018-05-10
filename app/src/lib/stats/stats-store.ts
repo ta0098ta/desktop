@@ -5,8 +5,8 @@ import { hasShownWelcomeFlow } from '../welcome'
 import { Account } from '../../models/account'
 import { getOS } from '../get-os'
 import { getGUID } from './get-guid'
-import { Repository } from '../../models/repository'
 import { merge } from '../../lib/merge'
+import { IRepository } from '../../database'
 
 const StatsEndpoint = 'https://central.github.com/api/usage/desktop'
 
@@ -110,7 +110,7 @@ export class StatsStore {
   /** Report any stats which are eligible for reporting. */
   public async reportStats(
     accounts: ReadonlyArray<Account>,
-    repositories: ReadonlyArray<Repository>
+    repositories: ReadonlyArray<IRepository>
   ) {
     if (this.optOut) {
       return
@@ -165,7 +165,7 @@ export class StatsStore {
   /** Get the daily stats. */
   private async getDailyStats(
     accounts: ReadonlyArray<Account>,
-    repositories: ReadonlyArray<Repository>
+    repositories: ReadonlyArray<IRepository>
   ): Promise<DailyStats> {
     const launchStats = await this.getAverageLaunchStats()
     const dailyMeasures = await this.getDailyMeasures()
@@ -185,11 +185,12 @@ export class StatsStore {
     }
   }
 
-  private categorizedRepositoryCounts(repositories: ReadonlyArray<Repository>) {
+  private categorizedRepositoryCounts(
+    repositories: ReadonlyArray<IRepository>
+  ) {
     return {
       repositoryCount: repositories.length,
-      gitHubRepositoryCount: repositories.filter(r => r.gitHubRepository)
-        .length,
+      gitHubRepositoryCount: repositories.filter(r => r.ghRepository).length,
     }
   }
 

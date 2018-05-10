@@ -2,13 +2,13 @@ import * as Path from 'path'
 import * as FS from 'fs'
 
 import { BaseStore } from './base-store'
-import { Repository } from '../../models/repository'
 import { getConfigValue } from '../git'
+import { IRepository } from '../../database'
 
 export class RepositorySettingsStore extends BaseStore {
-  private readonly _repository: Repository
+  private readonly _repository: IRepository
 
-  public constructor(repository: Repository) {
+  public constructor(repository: IRepository) {
     super()
 
     this._repository = repository
@@ -107,7 +107,7 @@ export class RepositorySettingsStore extends BaseStore {
  */
 async function formatGitIgnoreContents(
   text: string,
-  repository: Repository
+  repository: IRepository
 ): Promise<string> {
   const autocrlf = await getConfigValue(repository, 'core.autocrlf')
   const safecrlf = await getConfigValue(repository, 'core.safecrlf')

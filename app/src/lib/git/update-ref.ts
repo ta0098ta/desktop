@@ -1,5 +1,5 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../database'
 
 /**
  * Update the ref to a new value.
@@ -13,7 +13,7 @@ import { Repository } from '../../models/repository'
  * @param reason     - The reflog entry.
  */
 export async function updateRef(
-  repository: Repository,
+  repository: IRepository,
   ref: string,
   oldValue: string,
   newValue: string,
@@ -34,7 +34,7 @@ export async function updateRef(
  * @param reason     - The reflog entry.
  */
 export async function deleteRef(
-  repository: Repository,
+  repository: IRepository,
   ref: string,
   reason: string
 ): Promise<true | undefined> {

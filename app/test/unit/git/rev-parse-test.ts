@@ -5,7 +5,7 @@ import * as Fs from 'fs'
 import * as os from 'os'
 import { expect } from 'chai'
 
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import {
   isGitRepository,
   getTopLevelWorkingDirectory,
@@ -14,11 +14,11 @@ import { git } from '../../../src/lib/git/core'
 import { setupFixtureRepository, mkdirSync } from '../../helpers/repositories'
 
 describe('git/rev-parse', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(() => {
     const testRepoPath = setupFixtureRepository('test-repo')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = new IRepository(testRepoPath, -1, null, false)
   })
 
   describe('isGitRepository', () => {

@@ -4,7 +4,7 @@ import { pathExists } from '../../lib/file-system'
 import { revealInFileManager } from '../../lib/app-shell'
 
 import { FileChange, mapStatus, iconForStatus } from '../../models/status'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 
 import { PathLabel } from '../lib/path-label'
 import {
@@ -43,7 +43,7 @@ interface IFileListProps {
    * Repository that we use to get the base path and build
    * full path for the file in commit to check for file existence
    */
-  readonly repository: Repository
+  readonly repository: IRepository
 }
 
 export class FileList extends React.Component<IFileListProps, {}> {

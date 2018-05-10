@@ -4,11 +4,11 @@ import { ChangedFileDetails } from './changed-file-details'
 import { ImageDiffType } from '../../lib/app-state'
 import { DiffSelection, IDiff } from '../../models/diff'
 import { WorkingDirectoryFileChange } from '../../models/status'
-import { Repository } from '../../models/repository'
 import { Dispatcher } from '../../lib/dispatcher'
+import { IRepository } from '../../database'
 
 interface IChangesProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly file: WorkingDirectoryFileChange
   readonly diff: IDiff
   readonly dispatcher: Dispatcher

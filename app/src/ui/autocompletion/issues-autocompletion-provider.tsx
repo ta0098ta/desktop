@@ -2,8 +2,8 @@ import * as React from 'react'
 import { IAutocompletionProvider } from './index'
 import { IssuesStore } from '../../lib/stores'
 import { Dispatcher } from '../../lib/dispatcher'
-import { GitHubRepository } from '../../models/github-repository'
 import { ThrottledScheduler } from '../lib/throttled-scheduler'
+import { IRepository } from '../../database'
 
 /** The interval we should use to throttle the issues update. */
 const UpdateIssuesThrottleInterval = 1000 * 60
@@ -23,7 +23,7 @@ export class IssuesAutocompletionProvider
   public readonly kind = 'issue'
 
   private readonly issuesStore: IssuesStore
-  private readonly repository: GitHubRepository
+  private readonly repository: IRepository
   private readonly dispatcher: Dispatcher
 
   /**
@@ -36,7 +36,7 @@ export class IssuesAutocompletionProvider
 
   public constructor(
     issuesStore: IssuesStore,
-    repository: GitHubRepository,
+    repository: IRepository,
     dispatcher: Dispatcher
   ) {
     this.issuesStore = issuesStore
@@ -48,7 +48,7 @@ export class IssuesAutocompletionProvider
     return /(?:^|\n| )(?:#)([a-z\d\\+-][a-z\d_]*)?/g
   }
 
-  public getAutocompletionItems(
+  public async getAutocompletionItems(
     text: string
   ): Promise<ReadonlyArray<IIssueHit>> {
     this.updateIssuesScheduler.queue(() => {

@@ -1,5 +1,4 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { assertNever } from '../fatal-error'
 import { IRepository } from '../../database'
 
@@ -40,7 +39,7 @@ function resetModeToArgs(mode: GitResetMode, ref: string): string[] {
 
 /** Reset with the mode to the ref. */
 export async function reset(
-  repository: Repository,
+  repository: IRepository,
   mode: GitResetMode,
   ref: string
 ): Promise<true> {
@@ -65,7 +64,7 @@ export async function reset(
  *                  from the given tree
  */
 export async function resetPaths(
-  repository: Repository,
+  repository: IRepository,
   mode: GitResetMode,
   ref: string,
   paths: ReadonlyArray<string>

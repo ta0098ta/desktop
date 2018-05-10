@@ -1,7 +1,7 @@
 import * as Path from 'path'
-import { IGHRepository, IUser, IRepository } from '.'
+import { IUser, IRepository, IGHRepository } from '.'
 
-export function getFullName(repository: IRepository | IGHRepository) {
+export function getFullName(repository: IGHRepository | IRepository) {
   let name: string = repository.name
 
   if (repository.kind === 'repository') {
@@ -41,6 +41,26 @@ export function isFork(ghRepository: IGHRepository) {
   return ghRepository.parent != null
 }
 
+export function getEndpoint(repository: IGHRepository): string {
+  return repository.owner.endpoint
+}
+
+export function createRepositoryModel(
+  path: string,
+  isMissing: boolean = false,
+  ghRepository?: IGHRepository
+): IRepository {
+  const model: IRepository = {
+    kind: 'repository',
+    name: (ghRepository && ghRepository.name) || Path.basename(path),
+    path,
+    isMissing,
+    ghRepository,
+  }
+
+  return model
+}
+
 export function toRepositoryModel(document: IRepository & LokiObj) {
   const result: IRepository = {
     kind: 'repository',
@@ -51,22 +71,4 @@ export function toRepositoryModel(document: IRepository & LokiObj) {
   }
 
   return result
-}
-
-export function getEndpoint(repository: IGHRepository): string {
-  return repository.owner.endpoint
-}
-
-export function createRepositoryModel(
-  path: string,
-  isMissing: boolean,
-  ghRepository: IGHRepository | null
-) {
-  return {
-    kind: 'repository',
-    name: (ghRepository && ghRepository.name) || Path.basename(path),
-    path,
-    isMissing,
-    ghRepository,
-  }
 }

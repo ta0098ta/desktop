@@ -1,29 +1,30 @@
 import { expect } from 'chai'
 
 import { groupRepositories } from '../../src/ui/repositories-list/group-repositories'
-import { Repository } from '../../src/models/repository'
-import { GitHubRepository } from '../../src/models/github-repository'
 import { Owner } from '../../src/models/owner'
 import { getDotComAPIEndpoint } from '../../src/lib/api'
 import { CloningRepository } from '../../src/models/cloning-repository'
+import { IRepository, createRepositoryModel } from '../../src/database';
 
 describe('repository list grouping', () => {
-  const repositories: Array<Repository | CloningRepository> = [
-    new Repository('repo1', 1, null, false),
-    new Repository(
+  const repositories: Array<IRepository | CloningRepository> = [
+    createRepositoryModel('repo1', false),
+    createRepositoryModel('repo2', false,),
+    createRepositoryModel('repo3', false)
+    new IRepository(
       'repo2',
       2,
-      new GitHubRepository(
+      new IRepository(
         'my-repo2',
         new Owner('', getDotComAPIEndpoint(), null),
         1
       ),
       false
     ),
-    new Repository(
+    new IRepository(
       'repo3',
       3,
-      new GitHubRepository('my-repo3', new Owner('', '', null), 1),
+      new IRepository('my-repo3', new Owner('', '', null), 1),
       false
     ),
   ]
@@ -52,21 +53,21 @@ describe('repository list grouping', () => {
   })
 
   it('sorts repositories alphabetically within each group', () => {
-    const repoA = new Repository('a', 1, null, false)
-    const repoB = new Repository(
+    const repoA = new IRepository('a', 1, null, false)
+    const repoB = new IRepository(
       'b',
       2,
-      new GitHubRepository('b', new Owner('', getDotComAPIEndpoint(), null), 1),
+      new IRepository('b', new Owner('', getDotComAPIEndpoint(), null), 1),
       false
     )
-    const repoC = new Repository('c', 2, null, false)
-    const repoD = new Repository(
+    const repoC = new IRepository('c', 2, null, false)
+    const repoD = new IRepository(
       'd',
       2,
-      new GitHubRepository('d', new Owner('', getDotComAPIEndpoint(), null), 1),
+      new IRepository('d', new Owner('', getDotComAPIEndpoint(), null), 1),
       false
     )
-    const repoZ = new Repository('z', 3, null, false)
+    const repoZ = new IRepository('z', 3, null, false)
 
     const grouped = groupRepositories([repoC, repoB, repoZ, repoD, repoA])
     expect(grouped.length).to.equal(2)
@@ -88,30 +89,30 @@ describe('repository list grouping', () => {
   })
 
   it('marks repositories for disambiguation if they have the same name', () => {
-    const repoA = new Repository(
+    const repoA = new IRepository(
       'repo',
       1,
-      new GitHubRepository(
+      new IRepository(
         'repo',
         new Owner('user1', getDotComAPIEndpoint(), null),
         1
       ),
       false
     )
-    const repoB = new Repository(
+    const repoB = new IRepository(
       'cool-repo',
       2,
-      new GitHubRepository(
+      new IRepository(
         'cool-repo',
         new Owner('user2', getDotComAPIEndpoint(), null),
         2
       ),
       false
     )
-    const repoC = new Repository(
+    const repoC = new IRepository(
       'repo',
       2,
-      new GitHubRepository(
+      new IRepository(
         'repo',
         new Owner('user2', getDotComAPIEndpoint(), null),
         2

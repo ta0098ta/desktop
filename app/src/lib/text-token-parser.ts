@@ -1,6 +1,5 @@
-import { Repository } from '../models/repository'
-import { GitHubRepository } from '../models/github-repository'
 import { getHTMLURL } from './api'
+import { IRepository, getEndpoint } from '../database'
 
 export enum TokenType {
   /*
@@ -51,16 +50,16 @@ type LookupResult = {
  */
 export class Tokenizer {
   private readonly emoji: Map<string, string>
-  private readonly repository: GitHubRepository | null = null
+  private readonly ghRepo: IRepository | null = null
 
   private _results = new Array<TokenResult>()
   private _currentString = ''
 
-  public constructor(emoji: Map<string, string>, repository?: Repository) {
+  public constructor(emoji: Map<string, string>, repository?: IRepository) {
     this.emoji = emoji
 
     if (repository) {
-      this.repository = repository.gitHubRepository
+      this.ghRepo = repository.ghRepository || null
     }
   }
 
@@ -129,7 +128,7 @@ export class Tokenizer {
   private scanForIssue(
     text: string,
     index: number,
-    repository: GitHubRepository
+    repository: IRepository
   ): LookupResult | null {
     const nextIndex = this.scanForEndOfWord(text, index)
     const maybeIssue = text.slice(index, nextIndex)
@@ -143,7 +142,7 @@ export class Tokenizer {
       return null
     }
 
-    const url = `${repository.htmlURL}/issues/${id}`
+    const url = `${repository.htmlUrl}/issues/${id}`
     this._results.push({ kind: TokenType.Link, text: maybeIssue, url })
     return { nextIndex }
   }
@@ -151,7 +150,7 @@ export class Tokenizer {
   private scanForMention(
     text: string,
     index: number,
-    repository: GitHubRepository
+    repository: IRepository
   ): LookupResult | null {
     // to ensure this isn't part of an email address, peek at the previous
     // character - if something is found and it's not whitespace, bail out
@@ -168,7 +167,7 @@ export class Tokenizer {
 
     this.flush()
     const name = maybeMention.substr(1)
-    const url = `${getHTMLURL(repository.endpoint)}/${name}`
+    const url = `${getHTMLURL(getEndpoint(repository))}/${name}`
     this._results.push({ kind: TokenType.Link, text: maybeMention, url })
     return { nextIndex }
   }
@@ -176,7 +175,7 @@ export class Tokenizer {
   private scanForHyperlink(
     text: string,
     index: number,
-    repository?: GitHubRepository
+    repository?: IRepository
   ): LookupResult | null {
     // to ensure this isn't just the part of some word - if something is
     // found and it's not whitespace, bail out
@@ -192,9 +191,9 @@ export class Tokenizer {
     }
 
     this.flush()
-    if (repository && repository.htmlURL) {
+    if (repository && repository.htmlUrl) {
       // case-insensitive regex to see if this matches the issue URL template for the current repository
-      const compare = repository.htmlURL.toLowerCase()
+      const compare = repository.html.toLowerCase()
       if (maybeHyperlink.toLowerCase().startsWith(`${compare}/issues/`)) {
         const issueMatch = /\/issues\/(\d+)/.exec(maybeHyperlink)
         if (issueMatch) {
@@ -262,7 +261,7 @@ export class Tokenizer {
 
   private tokenizeGitHubRepository(
     text: string,
-    repository: GitHubRepository
+    repository: IRepository
   ): ReadonlyArray<TokenResult> {
     let i = 0
     while (i < text.length) {
@@ -310,8 +309,8 @@ export class Tokenizer {
   public tokenize(text: string): ReadonlyArray<TokenResult> {
     this.reset()
 
-    if (this.repository) {
-      return this.tokenizeGitHubRepository(text, this.repository)
+    if (this.ghRepo) {
+      return this.tokenizeGitHubRepository(text, this.ghRepo)
     } else {
       return this.tokenizeNonGitHubRepository(text)
     }

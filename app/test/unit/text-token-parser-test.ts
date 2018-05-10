@@ -6,8 +6,8 @@ import {
   EmojiMatch,
   HyperlinkMatch,
 } from '../../src/lib/text-token-parser'
-import { GitHubRepository } from '../../src/models/github-repository'
-import { Repository } from '../../src/models/repository'
+import { IGHRepository } from '../../src/models/github-repository'
+import { IRepository } from '../../src/models/repository'
 
 const emoji = new Map<string, string>([[':shipit:', '/some/path.png']])
 
@@ -44,7 +44,7 @@ describe('Tokenizer', () => {
     const htmlURL = `${host}/${login}/${name}`
     const cloneURL = `${host}/${login}/${name}.git`
 
-    let gitHubRepository: GitHubRepository | null = null
+    let gitHubRepository: IGHRepository | null = null
     gitHubRepository = {
       dbID: 1,
       name,
@@ -65,7 +65,7 @@ describe('Tokenizer', () => {
       parent: null,
     }
 
-    const repository = new Repository(
+    const repository = new IGHRepository(
       'some/path/to/repo',
       1,
       gitHubRepository,

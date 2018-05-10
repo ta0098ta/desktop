@@ -1,13 +1,13 @@
-import { Repository } from '../models/repository'
 import { CloningRepository } from '../models/cloning-repository'
 import { RetryAction } from './retry-actions'
+import { IRepository } from '../database'
 
 export interface IErrorMetadata {
   /** Was the action which caused this error part of a background task? */
   readonly backgroundTask?: boolean
 
   /** The repository from which this error originated. */
-  readonly repository?: Repository | CloningRepository
+  readonly repository?: IRepository | CloningRepository
 
   /** The action to retry if applicable. */
   readonly retryAction?: RetryAction

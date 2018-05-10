@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { Repository } from '../../../src/models/repository'
+import { IRepository } from '../../../src/models/repository'
 import {
   setupFixtureRepository,
   setupEmptyRepository,
@@ -8,11 +8,11 @@ import { getBranches } from '../../../src/lib/git/for-each-ref'
 import { BranchType } from '../../../src/models/branch'
 
 describe('git/for-each-ref', () => {
-  let repository: Repository | null = null
+  let repository: IRepository | null = null
 
   beforeEach(() => {
     const testRepoPath = setupFixtureRepository('repo-with-many-refs')
-    repository = new Repository(testRepoPath, -1, null, false)
+    repository = new IRepository(testRepoPath, -1, null, false)
   })
 
   describe('getBranches', () => {

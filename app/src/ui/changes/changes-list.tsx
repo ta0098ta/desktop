@@ -14,7 +14,6 @@ import {
 } from '../../models/status'
 import { DiffSelectionType } from '../../models/diff'
 import { CommitIdentity } from '../../models/commit-identity'
-import { Repository } from '../../models/repository'
 import { IAuthor } from '../../models/author'
 import { List, ClickSource } from '../lib/list'
 import { Checkbox, CheckboxValue } from '../lib/checkbox'
@@ -29,13 +28,14 @@ import { ChangedFile } from './changed-file'
 import { IAutocompletionProvider } from '../autocompletion'
 import { showContextualMenu } from '../main-process-proxy'
 import { arrayEquals } from '../../lib/equality'
+import { IRepository } from '../../database'
 
 const RowHeight = 29
 
 const GitIgnoreFileName = '.gitignore'
 
 interface IChangesListProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly workingDirectory: WorkingDirectoryStatus
   readonly selectedFileIDs: string[]
   readonly onFileSelectionChanged: (rows: ReadonlyArray<number>) => void

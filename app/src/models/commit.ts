@@ -1,7 +1,7 @@
 import { CommitIdentity } from './commit-identity'
 import { ITrailer, isCoAuthoredByTrailer } from '../lib/git/interpret-trailers'
 import { GitAuthor } from './git-author'
-import { GitHubRepository } from './github-repository'
+import { IGHRepository } from './github-repository'
 import { getDotComAPIEndpoint } from '../lib/api'
 
 /**
@@ -100,7 +100,7 @@ export class Commit {
    * possible we could fail if they've set up a custom smtp host
    * that doesn't correspond to the hostname.
    */
-  public isWebFlowCommitter(gitHubRepository: GitHubRepository) {
+  public isWebFlowCommitter(gitHubRepository: IGHRepository) {
     if (!gitHubRepository) {
       return false
     }

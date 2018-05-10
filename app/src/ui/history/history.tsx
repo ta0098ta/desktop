@@ -4,7 +4,7 @@ import * as Path from 'path'
 import { CommitSummary } from './commit-summary'
 import { Diff } from '../diff'
 import { FileList } from './file-list'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { CommittedFileChange, FileChange } from '../../models/status'
 import { Commit } from '../../models/commit'
 import { Dispatcher } from '../../lib/dispatcher'
@@ -19,7 +19,7 @@ import { Resizable } from '../resizable'
 import { openFile } from '../../lib/open-file'
 
 interface IHistoryProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly dispatcher: Dispatcher
   readonly history: IAppHistoryState
   readonly emoji: Map<string, string>

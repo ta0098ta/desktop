@@ -2,8 +2,8 @@ import * as React from 'react'
 
 import { encodePathAsUrl } from '../../lib/path'
 import { revealInFileManager } from '../../lib/app-shell'
-import { Repository } from '../../models/repository'
 import { LinkButton } from '../lib/link-button'
+import { IRepository } from '../../database'
 
 const BlankSlateImage = encodePathAsUrl(
   __dirname,
@@ -11,7 +11,7 @@ const BlankSlateImage = encodePathAsUrl(
 )
 
 interface INoChangesProps {
-  readonly repository: Repository
+  readonly repository: IRepository
 }
 
 /** The component to display when there are no local changes. */

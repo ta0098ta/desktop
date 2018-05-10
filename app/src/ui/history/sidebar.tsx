@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { CommitList } from './commit-list'
-import { Repository } from '../../models/repository'
+import { IRepository } from '../../models/repository'
 import { Commit } from '../../models/commit'
 import { Dispatcher } from '../../lib/dispatcher'
 import { IGitHubUser } from '../../lib/databases'
@@ -11,7 +11,7 @@ import { ThrottledScheduler } from '../lib/throttled-scheduler'
 const CloseToBottomThreshold = 10
 
 interface IHistorySidebarProps {
-  readonly repository: Repository
+  readonly repository: IRepository
   readonly dispatcher: Dispatcher
   readonly history: IHistoryState
   readonly gitHubUsers: Map<string, IGitHubUser>

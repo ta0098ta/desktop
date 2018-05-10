@@ -2,14 +2,14 @@ import * as React from 'react'
 
 import { UiView } from './ui-view'
 import { Dispatcher } from '../lib/dispatcher'
-import { Repository } from '../models/repository'
+import { IRepository } from '../models/repository'
 
 import { Button } from './lib/button'
 import { Row } from './lib/row'
 
 interface IMissingRepositoryProps {
   readonly dispatcher: Dispatcher
-  readonly repository: Repository
+  readonly repository: IRepository
 }
 
 /** The view displayed when a repository is missing. */

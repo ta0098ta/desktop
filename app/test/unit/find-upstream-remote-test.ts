@@ -4,12 +4,12 @@ import {
   findUpstreamRemote,
   UpstreamRemoteName,
 } from '../../src/lib/stores/helpers/find-upstream-remote'
-import { GitHubRepository } from '../../src/models/github-repository'
+import { IGHRepository } from '../../src/models/github-repository'
 import { Owner } from '../../src/models/owner'
 
 describe('findUpstreamRemote', () => {
   it('finds the upstream', () => {
-    const parent = new GitHubRepository(
+    const parent = new IGHRepository(
       'github-release-stats',
       new Owner('somsubhra', 'https://api.github.com', null),
       null,

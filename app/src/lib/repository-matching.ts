@@ -7,7 +7,6 @@ import { IRemote } from '../models/remote'
 import { getHTMLURL } from './api'
 import { parseRemote } from './remote-parsing'
 import { caseInsensitiveEquals } from './compare'
-import { GitHubRepository } from '../models/github-repository'
 import { IRepository } from '../database'
 
 export interface IMatchedGitHubRepository {
@@ -99,16 +98,16 @@ export function matchExistingRepository(
 /**
  * Check whether or not a GitHub repository matches a given remote.
  *
- * @param gitHubRepository the repository containing information from the GitHub API
+ * @param repository the repository containing information from the GitHub API
  * @param remote the remote details found in the Git repository
  */
 export function repositoryMatchesRemote(
-  gitHubRepository: GitHubRepository,
+  repository: IRepository,
   remote: IRemote
 ): boolean {
   return (
-    urlMatchesRemote(gitHubRepository.htmlURL, remote) ||
-    urlMatchesRemote(gitHubRepository.cloneURL, remote)
+    urlMatchesRemote(repository.ghRepository!.htmlUrl, remote) ||
+    urlMatchesRemote(repository.ghRepository!.cloneUrl, remote)
   )
 }
 

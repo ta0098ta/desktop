@@ -1,5 +1,4 @@
 import { git } from './core'
-import { Repository } from '../../models/repository'
 import { IRemote } from '../../models/remote'
 import { findDefaultRemote } from '../stores/helpers/find-default-remote'
 import { IRepository } from '../../database'
@@ -28,7 +27,7 @@ export async function getDefaultRemote(
 
 /** Add a new remote with the given URL. */
 export async function addRemote(
-  repository: Repository,
+  repository: IRepository,
   name: string,
   url: string
 ): Promise<IRemote> {
@@ -56,7 +55,7 @@ export async function removeRemote(
 
 /** Changes the URL for the remote that matches the given name  */
 export async function setRemoteURL(
-  repository: Repository,
+  repository: IRepository,
   name: string,
   url: string
 ): Promise<void> {

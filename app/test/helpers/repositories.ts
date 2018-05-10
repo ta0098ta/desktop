@@ -5,7 +5,6 @@ import * as FSE from 'fs-extra'
 
 const klawSync = require('klaw-sync')
 
-import { Repository } from '../../src/models/repository'
 import { GitProcess } from 'dugite'
 
 type KlawEntry = {
@@ -68,7 +67,7 @@ export async function setupEmptyRepository(): Promise<IRepository> {
   const repoPath = _temp.mkdirSync('desktop-empty-repo-')
   await GitProcess.exec(['init'], repoPath)
 
-  return createRepositoryModel(repoPath, false, null)
+  return createRepositoryModel(repoPath)
 }
 
 /**
@@ -81,7 +80,7 @@ export async function setupEmptyRepository(): Promise<IRepository> {
  *
  * The conflicted file will be 'foo'.
  */
-export async function setupConflictedRepo(): Promise<Repository> {
+export async function setupConflictedRepo(): Promise<IRepository> {
   const repo = await setupEmptyRepository()
   const filePath = Path.join(repo.path, 'foo')
 
